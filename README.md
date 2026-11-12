@@ -111,16 +111,3 @@ Open **`http://127.0.0.1:8090`** in your browser.
 .venv/bin/python main.py --mode championship-retrain --championship-rounds 2 --epochs 5
 ```
 
----
-
-## 🌐 Deploying to GitHub Pages (`github.io`)
-
-1. Push this repository to GitHub:
-   ```bash
-   git add .
-   git commit -m "Release JEV-Truco System 1 SLM & Interactive Web UI"
-   git push -u origin master
-   ```
-2. In your GitHub repository, navigate to **Settings → Pages**.
-3. Under **Build and deployment**, select **Deploy from a branch**, choose **`master`** (or `main`) and **`/ (root)`**, and click **Save**.
-4. Your interactive app will be live at **`https://<your-username>.github.io/<repo-name>/`** (serving [`index.html`](./index.html) with pre-bundled Championship replays and Leaderboard data from [`docs/data/static_bundle.json`](./docs/data/static_bundle.json)).
