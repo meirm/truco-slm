@@ -1,6 +1,6 @@
 # 🃏 JEV-Truco: System 1 Small Language Model & Bayesian Tactical Arena for Argentine Truco
 
-[![Launch Interactive Web UI (GitHub Pages)](https://img.shields.io/badge/%F0%9F%8E%AE_Launch_Interactive_Web_UI-index.html_(GitHub_Pages)-f5b942?style=for-the-badge)](./index.html)
+[![Launch Interactive Web UI (GitHub Pages)](https://img.shields.io/badge/%F0%9F%8E%AE_Launch_Interactive_Web_UI-index.html_(GitHub_Pages)-f5b942?style=for-the-badge)](https://meirm.github.io/truco-slm/)
 [![Video Replay Theater](https://img.shields.io/badge/%F0%9F%8E%AC_Bot_Match_Theater-webui%2Findex.html-38bdf8?style=for-the-badge)](./webui/index.html)
 
 **JEV-Truco** is a full 2-player **Argentine Truco** engine (40-card Spanish deck, *Envido / Real Envido / Falta Envido*, *"El Envido está primero"*, *"Son buenas"*, *Truco / Retruco / Vale Cuatro*, and *Parda* tie-breaker rules) powered by a **System 1 Small Language Model (`System1TrucoSLM`)** that selects actions and estimates expected value in a **single forward pass (`~1.0 ms` per decision, zero Chain-of-Thought tokens)**.
