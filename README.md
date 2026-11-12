@@ -1,113 +1,112 @@
-# 🃏 JEV-Truco: System 1 Small Language Model & Bayesian Tactical Arena for Argentine Truco
+# 🃏 JEV-Truco: Modelo de Lenguaje Pequeño System 1 y Arena Táctica Bayesiana para Truco Argentino
 
-[![Launch Interactive Web UI (GitHub Pages)](https://img.shields.io/badge/%F0%9F%8E%AE_Launch_Interactive_Web_UI-index.html_(GitHub_Pages)-f5b942?style=for-the-badge)](https://meirm.github.io/truco-slm/)
-[![Video Replay Theater](https://img.shields.io/badge/%F0%9F%8E%AC_Bot_Match_Theater-webui%2Findex.html-38bdf8?style=for-the-badge)](./webui/index.html)
+[![Abrir la interfaz web interactiva (GitHub Pages)](https://img.shields.io/badge/%F0%9F%8E%AE_Launch_Interactive_Web_UI-index.html_(GitHub_Pages)-f5b942?style=for-the-badge)](https://meirm.github.io/truco-slm/)
+[![Teatro de repeticiones de partidas](https://img.shields.io/badge/%F0%9F%8E%AC_Bot_Match_Theater-webui%2Findex.html-38bdf8?style=for-the-badge)](./webui/index.html)
 
-**JEV-Truco** is a full 2-player **Argentine Truco** engine (40-card Spanish deck, *Envido / Real Envido / Falta Envido*, *"El Envido está primero"*, *"Son buenas"*, *Truco / Retruco / Vale Cuatro*, and *Parda* tie-breaker rules) powered by a **System 1 Small Language Model (`System1TrucoSLM`)** that selects actions and estimates expected value in a **single forward pass (`~1.0 ms` per decision, zero Chain-of-Thought tokens)**.
+**JEV-Truco** es un motor completo para **Truco Argentino** de 2 jugadores (baraja española de 40 cartas, reglas de *Envido / Real Envido / Falta Envido*, *«El Envido está primero»*, *«Son buenas»*, *Truco / Retruco / Vale Cuatro* y desempate por *Parda*), impulsado por un **modelo de lenguaje pequeño System 1 (`System1TrucoSLM`)** que elige acciones y estima el valor esperado en **una sola pasada hacia delante (`~1.0 ms` por decisión, sin tokens de cadena de pensamiento)**.
 
-👉 **[Open the Live Interactive App (`index.html`)](https://meirm.github.io/truco-slm/)** *(works directly on **GitHub Pages `github.io`** in static demo mode, or connected to `server.py` locally for live PyTorch RLHF training!)*
-
----
-
-## 🎬 Two Bots Playing Against Each Other (`JEV-Active` vs. `JEV-Base`)
-
-Below is a live capture from the **[Interactive Video Replay Theater](./index.html)** showing two System-1 SLM bots (`#5 JEV-Active` vs. `#4 JEV-Base`) battling across a high-stakes hand:
-1. **Deal & Envido Phase**: `JEV-Active` (Mano, holding `3E, 12E, 6B`) opens with a psychological *Falta Envido* probe; `JEV-Base` (`3O, 1O, 11O`, 24 Envido) declines (*No Quiero*).
-2. **Trick 1 (*Primera* — Parda)**: `JEV-Active` leads `3 de Espada` (`Pwr 10`) and `JEV-Base` ties with `3 de Oro` (`Pwr 10`) for a **Parda** on Primera.
-3. **Full Truco Escalation**: With `12 de Espada` vs. `1 de Oro` in *Segunda*, the bots escalate **Truco → Retruco → ¡Quiero Vale Cuatro!** while the bottom telemetry panel streams the exact `<BOS> ... <ACT>` token sequence, Bayesian opponent belief tokens (`BELIEF_WIN_*`, `BELIEF_THREAT_*`, `BELIEF_ENV_*`), and single-pass policy probabilities.
-
-![Two Bots Playing Argentine Truco in JEV-Truco Video Replay Theater](./docs/assets/bots_duel.gif)
+👉 **[Abrir la aplicación interactiva en vivo (`index.html`)](https://meirm.github.io/truco-slm/)** *(funciona directamente en **GitHub Pages `github.io`** en modo de demostración estática, o conectada localmente a `server.py` para entrenar RLHF en vivo con PyTorch).*
 
 ---
 
-## 📸 Visual Tour & Key Features
+## 🎬 Dos bots juegan entre sí (`JEV-Active` vs. `JEV-Base`)
 
-### 1. 🎮 Play vs. AI, Bayesian Card Reading & Human-in-the-Loop RLHF Coach
-Play 15-point matches against any model on the Leaderboard—or enable **🕵️ Hide Opponent Identity (Mystery Opponent)** to play blind and reveal which personality bot you faced after the match.
-- **"Son buenas" Rule**: Mano always declares their Envido score first; if Pie loses the Envido, Pie says *"Son buenas"* without revealing their score or unplayed cards.
-- **Joint Envido + Played-Card Deduction (`envido_hypotheses`)**: Once an opponent declares their Envido points and plays a card (e.g., declares **`21`** as Mano and plays **`12 de Espada`** `12E`), the Bayesian tracker decomposes their remaining hidden cards into concrete tactical branches:
-  1. **Links with `12E` (`60%`)**: Holds **`1 de Espada` (`1E`)** + 1 free card (which could include `1 de Basto` `1B` or a `3`).
-  2. **Hidden Basto Pair (`13%`, `12E` loose)**: Holds **`1B` + `10B/11B/12B`** (two strong Truco cards alongside `12E`).
-  3. **Hidden Copa/Oro Pair (`27%`, `12E` loose)**: Holds **`1O` or `1C` + `10/11/12`** (worth much less in Truco).
-- **Direct RLHF Action Critique**: Approve (`👍`) or override (`👎 + Better Action`) any AI move and click **🔥 Fine-Tune AI on Feedback Now**—plus automatic **End-of-Hand Hindsight Counterfactual Replay** once all 6 cards are known.
+A continuación se muestra una captura en vivo del **[teatro interactivo de repeticiones](./index.html)**, donde dos bots SLM System-1 (`#5 JEV-Active` vs. `#4 JEV-Base`) se enfrentan en una mano de alto riesgo:
+1. **Reparto y fase de Envido**: `JEV-Active` (Mano, con `3E, 12E, 6B`) abre con una jugada psicológica de *Falta Envido*; `JEV-Base` (`3O, 1O, 11O`, 24 de Envido) no acepta (*No Quiero*).
+2. **Primera baza (*Primera* — Parda)**: `JEV-Active` sale con el `3 de Espada` (`Pwr 10`) y `JEV-Base` empata con el `3 de Oro` (`Pwr 10`), dejando la **Parda** en Primera.
+3. **Escalada completa del Truco**: Con el `12 de Espada` frente al `1 de Oro` en *Segunda*, los bots suben la apuesta de **Truco → Retruco → ¡Quiero Vale Cuatro!**, mientras el panel inferior de telemetría muestra la secuencia exacta de tokens `<BOS> ... <ACT>`, los tokens de creencia bayesiana sobre el oponente (`BELIEF_WIN_*`, `BELIEF_THREAT_*`, `BELIEF_ENV_*`) y las probabilidades de la política de una sola pasada.
 
-![Play vs AI & RLHF Coach](./docs/assets/screenshot_play_rlhf.png)
+![Dos bots juegan Truco Argentino en el teatro de repeticiones de JEV-Truco](./docs/assets/bots_duel.gif)
 
 ---
 
-### 2. 🏆 8-Model Elo Leaderboard, Tactical Personalities & Roster Pruning
-The arena ranks 4 core architectures alongside 4 specialized tactical personalities modulated at the logit level:
-- **El Mentiroso (`jev_bluffer`)**: High-frequency strategic bluffer on weak hands & low Envido counts.
-- **El Zorro (`jev_phisher`)**: Slow-plays monster hands on Trick 0 (*"Achique"* bait with weakest card) to snap-trap opponents on Trick 1/2.
-- **El Comisario (`jev_sheriff`)**: Bayesian bluff-catcher and trap-smeller (`p_bluff_suspect` & `p_trap_suspect`).
-- **El Temerario (`jev_kamikaze`)**: Relentless maximum-pressure stakes escalator.
+## 📸 Recorrido visual y funciones principales
 
-Includes interactive **✂️ Roster Pruning** controls in the UI (`Keep Top K`, `Keep Core 8`, `Drop < 50% Win Rate`, per-row `🗑️` removal, and `Restore All`).
+### 1. 🎮 Juega contra la IA, lectura bayesiana de cartas y entrenador RLHF con intervención humana
+Juega partidas a 15 puntos contra cualquier modelo de la clasificación, o activa **🕵️ Ocultar identidad del oponente (oponente misterioso)** para jugar sin saber quién es y descubrir después de la partida a qué bot de personalidad te enfrentaste.
+- **Regla de «Son buenas»**: Mano siempre declara primero sus puntos de Envido; si Pie pierde el Envido, dice *«Son buenas»* sin revelar su puntuación ni las cartas que aún no ha jugado.
+- **Deducción conjunta de Envido y cartas jugadas (`envido_hypotheses`)**: Cuando el oponente declara sus puntos de Envido y juega una carta (por ejemplo, declara **`21`** como Mano y juega el **`12 de Espada`** `12E`), el rastreador bayesiano descompone las cartas ocultas que le quedan en escenarios tácticos concretos:
+  1. **Combinación con `12E` (`60%`)**: Tiene el **`1 de Espada` (`1E`)** y una carta libre (que podría ser el `1 de Basto` `1B` o un `3`).
+  2. **Pareja oculta de Bastos (`13%`, `12E` sin pareja)**: Tiene **`1B` + `10B/11B/12B`** (dos cartas fuertes para el Truco junto al `12E`).
+  3. **Pareja oculta de Copas/Oros (`27%`, `12E` sin pareja)**: Tiene **`1O` o `1C` + `10/11/12`** (mucho menos valiosas en el Truco).
+- **Evaluación directa de acciones mediante RLHF**: Aprueba (`👍`) o corrige (`👎 + Better Action`) cualquier jugada de la IA y pulsa **🔥 Fine-Tune AI on Feedback Now**. Además, al conocerse las 6 cartas, se ejecuta automáticamente una **revisión contrafactual retrospectiva al final de la mano**.
 
-![Argentine Truco AI Leaderboard & Head-to-Head Matrix](./docs/assets/screenshot_leaderboard.png)
-
----
-
-### 3. 👑 King-of-the-Hill & Championship Collective Retrainer (Real-Time Telemetry)
-Launch **King-of-the-Hill** (spawns a new Challenger generation against #1) or **Championship + Retrain All Models** (runs a full round-robin duplicate championship, applies full-card hindsight counterfactual replay to every hand, and retrains all neural models on the harvested dataset).
-- Streams **real-time KPI cards** (`~1.03 ms` per System-1 decision, `~40.5 ms` per 15-point match) and a live **Winner Points vs. Loser Points** SVG chart above the console log.
-
-![King-of-the-Hill & Championship Telemetry](./docs/assets/screenshot_koth_telemetry.png)
+![Juega contra la IA y entrenador RLHF](./docs/assets/screenshot_play_rlhf.png)
 
 ---
 
-### 4. 🎬 Bot Match Video Replay Theater & System-1 Telemetry Inspector
-Select any two models, simulate multi-hand duplicate matchups, and scrub frame-by-frame through every deal, bet, speech bubble, and trick with full visibility into the model's 162-token `<ACT>` prompt and top-5 action probabilities.
+### 2. 🏆 Clasificación Elo de 8 modelos, personalidades tácticas y selección del equipo
+La arena clasifica 4 arquitecturas principales junto con 4 personalidades tácticas especializadas, moduladas en el nivel de los logits:
+- **El Mentiroso (`jev_bluffer`)**: farolea estratégicamente con mucha frecuencia cuando tiene malas cartas y pocos puntos de Envido.
+- **El Zorro (`jev_phisher`)**: juega con cautela manos excelentes en la primera baza (*«Achique»*, usando la carta más débil como señuelo) para atrapar al rival en la segunda o tercera baza.
+- **El Comisario (`jev_sheriff`)**: detecta faroles y trampas mediante inferencia bayesiana (`p_bluff_suspect` y `p_trap_suspect`).
+- **El Temerario (`jev_kamikaze`)**: sube las apuestas sin descanso para ejercer la máxima presión.
 
-![Bot Match Video Replay Theater](./docs/assets/screenshot_video_theater.png)
+La interfaz incluye controles interactivos para **✂️ seleccionar los modelos del equipo** (`Keep Top K`, `Keep Core 8`, `Drop < 50% Win Rate`), quitar modelos con el botón `🗑️` de cada fila y usar `Restore All` para restaurarlos todos.
+
+![Clasificación de Truco con IA y matriz de enfrentamientos](./docs/assets/screenshot_leaderboard.png)
 
 ---
 
-## 🗂️ Repository Structure
+### 3. 👑 Rey de la colina y reentrenador colectivo del campeonato (telemetría en tiempo real)
+Inicia **Rey de la colina** (crea una nueva generación de Retadores para enfrentarse al número 1) o **Campeonato + reentrenar todos los modelos** (organiza un campeonato completo de todos contra todos con partidas duplicadas, aplica una reproducción contrafactual retrospectiva con todas las cartas a cada mano y vuelve a entrenar todos los modelos neuronales con los datos recopilados).
+- Muestra **indicadores KPI en tiempo real** (`~1.03 ms` por decisión de System-1, `~40.5 ms` por partida a 15 puntos) y un gráfico SVG dinámico de **puntos del ganador frente a puntos del perdedor** sobre el registro de la consola.
 
-| File | Description |
+![Rey de la colina y telemetría del campeonato](./docs/assets/screenshot_koth_telemetry.png)
+
+---
+
+### 4. 🎬 Teatro de repeticiones de partidas de bots e inspector de telemetría System-1
+Selecciona dos modelos, simula enfrentamientos duplicados de varias manos y avanza fotograma a fotograma por cada reparto, apuesta, diálogo y baza, con visibilidad completa del prompt `<ACT>` de 162 tokens del modelo y de las cinco acciones más probables.
+
+![Teatro de repeticiones de partidas de bots](./docs/assets/screenshot_video_theater.png)
+
+---
+
+## 🗂️ Estructura del repositorio
+
+| Archivo | Descripción |
 | :--- | :--- |
-| [`index.html`](./index.html) / [`webui/index.html`](./webui/index.html) | Standalone React 19 Web UI (works on **GitHub Pages `github.io`** via [`docs/data/static_bundle.json`](./docs/data/static_bundle.json) and with [`server.py`](./server.py) locally) |
-| [`server.py`](./server.py) | Multi-threaded REST & Web UI server (`/api/play/*`, `/api/leaderboard/*`, `/api/train/*`, `/api/simulate`) |
-| [`main.py`](./main.py) | CLI entry point for `--mode train`, `--mode league`, `--mode challenge-leader`, `--mode championship-retrain`, `--mode leaderboard`, and `--mode play` |
-| [`truco/engine.py`](./truco/engine.py) | Complete 2-player Argentine Truco rules engine (40 cards, 14 power tiers, Envido chain, *"El Envido está primero"*, *"Son buenas"*, Truco chain, Parda rules) |
-| [`truco/tokenizer.py`](./truco/tokenizer.py) | 162-token domain vocabulary serializer + Bayesian hidden-card belief tracker (`compute_opponent_belief`) and Envido→Truco hypothesis generator |
-| [`truco/model.py`](./truco/model.py) | `System1TrucoSLM`: 4-layer causal Transformer (`RMSNorm` + `SwiGLU` + masked policy head + scalar value head) |
-| [`truco/leaderboard.py`](./truco/leaderboard.py) | Persistent Elo leaderboard, Roster Pruning manager, and Tactical Personality logit modulator (`act_with_personality`) |
-| [`truco/arena.py`](./truco/arena.py) | Dual-instance league trainer, King-of-the-Hill gauntlet, and Championship + Hindsight collective retrainer |
-| [`truco/rlhf.py`](./truco/rlhf.py) | Interactive Human-vs-AI session manager, Mystery Opponent masking, and online RLHF + Hindsight Replay trainer |
-| [`tests/test_truco.py`](./tests/test_truco.py) | 12-test unit test suite covering Argentine Truco rules, Bayesian Envido+Card deduction, personalities, and leaderboard pruning |
+| [`index.html`](./index.html) / [`webui/index.html`](./webui/index.html) | Interfaz web independiente en React 19 (funciona en **GitHub Pages `github.io`** mediante [`docs/data/static_bundle.json`](./docs/data/static_bundle.json) y localmente con [`server.py`](./server.py)) |
+| [`server.py`](./server.py) | Servidor REST e interfaz web multihilo (`/api/play/*`, `/api/leaderboard/*`, `/api/train/*`, `/api/simulate`) |
+| [`main.py`](./main.py) | Punto de entrada CLI para `--mode train`, `--mode league`, `--mode challenge-leader`, `--mode championship-retrain`, `--mode leaderboard` y `--mode play` |
+| [`truco/engine.py`](./truco/engine.py) | Motor completo de reglas de Truco Argentino para 2 jugadores (40 cartas, 14 niveles de fuerza, cadena de Envido, *«El Envido está primero»*, *«Son buenas»*, cadena de Truco y reglas de Parda) |
+| [`truco/tokenizer.py`](./truco/tokenizer.py) | Serializador de vocabulario de dominio de 162 tokens y rastreador bayesiano de cartas ocultas (`compute_opponent_belief`), además de generador de hipótesis de Envido a Truco |
+| [`truco/model.py`](./truco/model.py) | `System1TrucoSLM`: Transformer causal de 4 capas (`RMSNorm` + `SwiGLU` + capa de política enmascarada + capa de valor escalar) |
+| [`truco/leaderboard.py`](./truco/leaderboard.py) | Clasificación Elo persistente, gestor de selección de modelos del equipo y modulador de logits de personalidad táctica (`act_with_personality`) |
+| [`truco/arena.py`](./truco/arena.py) | Entrenador de ligas con dos instancias, torneo Rey de la colina y reentrenador colectivo del campeonato con retrospectiva |
+| [`truco/rlhf.py`](./truco/rlhf.py) | Gestor de sesiones interactivas Humano contra IA, ocultación de identidad del oponente y entrenador en línea RLHF + reproducción retrospectiva |
+| [`tests/test_truco.py`](./tests/test_truco.py) | Suite de 12 pruebas unitarias sobre reglas del Truco Argentino, deducción bayesiana de Envido y cartas, personalidades y selección del equipo |
 
 ---
 
-## 🚀 Quick Start (Local Server & CLI)
+## 🚀 Inicio rápido (servidor local y CLI)
 
-### 1. Install Dependencies
+### 1. Instalar dependencias
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install torch numpy
 ```
 
-### 2. Launch the Interactive Web UI & Video Replay Server
+### 2. Iniciar la interfaz web interactiva y el servidor de repeticiones de video
 ```bash
 .venv/bin/python server.py --port 8090
 ```
-Open **`http://127.0.0.1:8090`** in your browser.
+Abre **`http://127.0.0.1:8090`** en el navegador.
 
-### 3. Run Unit Tests
+### 3. Ejecutar las pruebas unitarias
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-### 4. Common CLI Workflows (`justfile` or `main.py`)
+### 4. Flujos de trabajo CLI habituales (`justfile` o `main.py`)
 ```bash
-# Print current 8-model Leaderboard & Head-to-Head Matrix
+# Mostrar la clasificación actual de 8 modelos y la matriz de enfrentamientos
 .venv/bin/python main.py --mode leaderboard --tournament-rounds 0
 
-# Run a 5-round duplicate tournament across all active models
+# Ejecutar un torneo duplicado de 5 rondas entre todos los modelos activos
 .venv/bin/python main.py --mode leaderboard --tournament-rounds 5 --reset-leaderboard
 
-# Run a Championship across all models + Retrain all neural checkpoints on Hindsight Replay
+# Organizar un campeonato con todos los modelos y reentrenar los checkpoints neuronales con la reproducción retrospectiva
 .venv/bin/python main.py --mode championship-retrain --championship-rounds 2 --epochs 5
 ```
-
