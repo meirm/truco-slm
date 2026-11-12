@@ -1,0 +1,16 @@
+# Python virtual environments & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# macOS & Editor metadata
+.DS_Store
+.idea/
+.vscode/
+
+# Pruned intermediate generation checkpoints (keep jev_base_slm.pt, jev_gen_16_slm.pt, jev_truco_slm.pt)
+checkpoints/jev_gen_[1-9]_slm.pt
+checkpoints/jev_gen_1[0-5]_slm.pt

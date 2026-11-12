@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JEV-Truco | System 1 SLM Leaderboard, King-of-the-Hill & Video Theater</title>
+  <!-- React 18 & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0b111e;
+      --bg-panel: #131c2e;
+      --bg-panel-alt: #19253d;
+      --felt-green: #0f3d29;
+      --felt-border: #1e6b48;
+      --accent-gold: #f5b942;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-subtle: #263552;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    header.app-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.75rem;
+      background: linear-gradient(90deg, #0f172a 0%, #172554 100%);
+      border-block-end: 1px solid var(--border-subtle);
+      gap: 1rem;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-title h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .badge-sys1 {
+      background: rgba(245, 185, 66, 0.16);
+      color: var(--accent-gold);
+      border: 1px solid rgba(245, 185, 66, 0.4);
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-btn {
+      background: var(--bg-panel);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      padding: 0.55rem 1.1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent-blue);
+    }
+
+    .nav-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    main.container {
+      max-inline-size: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
+    }
+
+    .panel-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-block-end: 1rem;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Responsive Data Table (following modern-web-guidance `responsive-table`) */
+    .table-wrapper {
+      overflow: auto;
+      max-inline-size: 100%;
+      max-block-size: min(560px, 80vh);
+      container-type: inline-size;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-wrapper:focus-visible {
+      outline: 2px solid var(--accent-gold);
+      outline-offset: 2px;
+    }
+
+    table.data-table {
+      inline-size: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.9rem;
+      --label-2: "Model / Architecture";
+      --label-3: "Elo Rating";
+      --label-4: "Matches";
+      --label-5: "Wins";
+      --label-6: "Losses";
+      --label-7: "Win %";
+      --label-8: "Net Pts/Hand";
+      --label-9: "Action";
+    }
+
+    table.data-table caption {
+      text-align: start;
+      padding: 0.65rem 1rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: var(--bg-panel-alt);
+      border-block-end: 1px solid var(--border-subtle);
+    }
+
+    table.data-table thead {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 2;
+      background: var(--bg-panel-alt);
+    }
+
+    table.data-table th,
+    table.data-table td {
+      padding: 0.7rem 0.9rem;
+      text-align: start;
+      border-block-end: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    table.data-table thead th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Sticky row headers (desktop) */
+    table.data-table tbody th {
+      position: sticky;
+      inset-inline-start: 0;
+      z-index: 1;
+      background: var(--bg-panel);
+      font-weight: 600;
+      color: #fff;
+      border-inline-end: 1px solid var(--border-subtle);
+    }
+
+    table.data-table tbody tr:hover td,
+    table.data-table tbody tr:hover th {
+      background: #1d2b47;
+    }
+
+    /* Container Query Stacked Layout for narrow viewports */
+    @container (width < 640px) {
+      table.data-table,
+      table.data-table thead,
+      table.data-table tbody,
+      table.data-table tr,
+      table.data-table th,
+      table.data-table td {
+        display: block;
+      }
+
+      table.data-table thead {
+        display: none;
+      }
+
+      table.data-table tr {
+        margin-block-end: 1rem;
+        border: 1px solid var(--border-subtle);
+        border-radius: 0.5rem;
+      }
+
+      table.data-table tbody th {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 2;
+        background: var(--bg-panel-alt);
+      }
+
+      table.data-table td:nth-child(2)::before { content: var(--label-2) ": "; color: var(--text-muted); }
+      table.data-table td:nth-child(3)::before { content: var(--label-3) ": "; color: var(--text-muted); }
+      table.data-table td:nth-child(4)::before { content: var(--label-4) ": "; color: var(--text-muted); }
+      table.data-table td:nth-child(5)::before { content: var(--label-5) ": "; color: var(--text-muted); }
+      table.data-table td:nth-child(6)::before { content: var(--label-6) ": "; color: var(--text-muted); }
+      table.data-table td:nth-child(7)::before { content: var(--label-7) ": "; color: var(--text-muted); }
+      table.data-table td:nth-child(8)::before { content: var(--label-8) ": "; color: var(--text-muted); }
+      table.data-table td:nth-child(9)::before { content: var(--label-9) ": "; color: var(--text-muted); }
+    }
+
+    /* Buttons & Controls */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: 0.45rem;
+      font-weight: 600;
+      font-size: 0.86rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-gold {
+      background: var(--accent-gold);
+      color: #0f172a;
+    }
+
+    .btn-gold:hover:not(:disabled) {
+      background: #fbbf24;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    .btn-outline {
+      background: var(--bg-panel-alt);
+      color: var(--text-main);
+      border-color: var(--border-subtle);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      border-color: var(--accent-gold);
+    }
+
+    /* Video Theater & Argentine Truco Felt Table */
+    .theater-grid {
+      display: grid;
+      grid-template-columns: 1fr 370px;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1024px) {
+      .theater-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .felt-stage {
+      background: radial-gradient(circle at center, #155238 0%, #0b2e1e 100%);
+      border: 3px solid var(--felt-border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-block-size: 510px;
+      position: relative;
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.55);
+    }
+
+    .player-zone {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(11, 17, 30, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .player-zone.active-turn {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 16px rgba(245, 185, 66, 0.3);
+    }
+
+    .cards-row {
+      display: flex;
+      gap: 0.65rem;
+    }
+
+    /* Spanish Baraja Card Component */
+    .spanish-card {
+      inline-size: 74px;
+      block-size: 112px;
+      background: linear-gradient(145deg, #fffdf9 0%, #f3ead8 100%);
+      border: 2px solid #cbb682;
+      border-radius: 0.5rem;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0.35rem 0.45rem;
+      font-weight: 800;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      position: relative;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .spanish-card.played-in-hand {
+      opacity: 0.25;
+      transform: scale(0.92);
+      filter: grayscale(0.6);
+    }
+
+    .spanish-card .card-corner {
+      font-size: 0.85rem;
+      line-height: 1;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .spanish-card .card-suit-icon {
+      font-size: 1.65rem;
+      text-align: center;
+      margin: auto 0;
+    }
+
+    .spanish-card .card-footer {
+      font-size: 0.65rem;
+      text-align: center;
+      color: #475569;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 0.25rem;
+      padding: 1px 3px;
+    }
+
+    .suit-Espada { border-color: #38bdf8; color: #0369a1; }
+    .suit-Basto  { border-color: #22c55e; color: #15803d; }
+    .suit-Oro    { border-color: #eab308; color: #b45309; }
+    .suit-Copa   { border-color: #f43f5e; color: #be123c; }
+
+    /* Speech Bubble for Envido / Truco / Quiero */
+    .speech-bubble {
+      background: var(--accent-gold);
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+      animation: popIn 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1.0); opacity: 1; }
+    }
+
+    /* Center Tricks Arena */
+    .tricks-arena {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin: 0.85rem 0;
+    }
+
+    .trick-slot {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 0.75rem;
+      padding: 0.65rem;
+      min-block-size: 165px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .trick-slot-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .trick-cards-pair {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      justify-content: center;
+      min-block-size: 115px;
+    }
+
+    /* Video Player Scrubber Bar */
+    .video-controls-bar {
+      background: var(--bg-panel-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-block-start: 0.85rem;
+    }
+
+    .scrubber-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .scrubber-slider {
+      flex: 1;
+      accent-color: var(--accent-gold);
+      cursor: pointer;
+    }
+
+    .controls-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .prompt-box {
+      background: #070b14;
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.5rem;
+      padding: 0.65rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      color: #38bdf8;
+      word-break: break-all;
+      max-block-size: 120px;
+      overflow-y: auto;
+    }
+
+    .prob-bar-track {
+      background: #0b111e;
+      block-size: 8px;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-block-start: 4px;
+    }
+
+    .prob-bar-fill {
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-emerald));
+      block-size: 100%;
+    }
+
+    .log-terminal {
+      background: #060a12;
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.5rem;
+      padding: 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem;
+      color: #a7f3d0;
+      max-block-size: 240px;
+      overflow-y: auto;
+    }
+
+    select.select-input,
+    input.num-input {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.4rem;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.86rem;
+    }
+
+    /* Brand-Consistent Form Controls (`brand-consistent-forms`) & Native Switch (`switch`) */
+    body {
+      color-scheme: light dark;
+      accent-color: var(--accent-gold);
+    }
+
+    input[type="checkbox"][switch] {
+      accent-color: var(--accent-gold, #f5b942);
+      margin: 0;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"][switch]:focus-visible {
+      outline: 3px solid var(--accent-gold, #f5b942);
+      outline-offset: 4px;
+    }
+
+    @supports not (accent-color: var(--accent-gold)) {
+      input[type="checkbox"].visually-hidden {
+        position: absolute !important;
+        clip-path: inset(50%) !important;
+        overflow: hidden !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        white-space: nowrap !important;
+      }
+
+      label.custom-check-label {
+        position: relative;
+        padding-left: 1.8rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      input[type="checkbox"].visually-hidden + span::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.1rem;
+        height: 1.1rem;
+        border: 2px solid #cbd5e1;
+        background: #0f172a;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      input[type="checkbox"].visually-hidden:focus-visible + span::before {
+        outline: 2px solid var(--accent-gold);
+        outline-offset: 2px;
+      }
+
+      input[type="checkbox"].visually-hidden:checked + span::before {
+        background-color: var(--accent-gold);
+        border-color: var(--accent-gold);
+      }
+
+      input[type="checkbox"].visually-hidden:checked + span::after {
+        content: "✓";
+        position: absolute;
+        left: 0.22rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #0f172a;
+        font-weight: bold;
+        font-size: 0.85rem;
+      }
+
+      input[type="range"].scrubber-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+      }
+
+      input[type="range"].scrubber-slider::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(to right, var(--accent-gold) var(--progress, 0%), #334155 var(--progress, 0%));
+        border-radius: 4px;
+      }
+
+      input[type="range"].scrubber-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        background: var(--accent-gold);
+        cursor: pointer;
+        margin-top: -4px;
+      }
+    }
+
+    .spanish-card.clickable-card {
+      cursor: pointer;
+    }
+
+    .spanish-card.clickable-card:hover {
+      transform: translateY(-8px) scale(1.04);
+      box-shadow: 0 10px 20px rgba(245, 185, 66, 0.45);
+      border-color: var(--accent-gold);
+    }
+
+    .feedback-card {
+      background: #0c1322;
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.55rem;
+      padding: 0.7rem;
+      margin-block-end: 0.65rem;
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const SUIT_SYMBOLS = {
+      Espada: "⚔️",
+      Basto: "🌿",
+      Oro: "🪙",
+      Copa: "🍷",
+    };
+
+    function SpanishCard({ card, hideFace = false, onClick = null }) {
+      if (!card) return null;
+      if (hideFace) {
+        return (
+          <div className="spanish-card" style={{ background: "#1e293b", borderColor: "#475569", color: "#94a3b8" }}>
+            <div style={{ margin: "auto", fontSize: "1.4rem" }}>🎴</div>
+          </div>
+        );
+      }
+      const symbol = SUIT_SYMBOLS[card.suit] || "🃏";
+      const canClick = Boolean(onClick && !card.played);
+      return (
+        <div
+          className={`spanish-card suit-${card.suit} ${card.played ? "played-in-hand" : ""} ${canClick ? "clickable-card" : ""}`}
+          onClick={canClick ? onClick : undefined}
+          title={canClick ? `Click to play ${card.name}` : card.name}
+        >
+          <div className="card-corner">
+            <span>{card.rank}</span>
+            <span>{card.suit_short}</span>
+          </div>
+          <div className="card-suit-icon">{symbol}</div>
+          <div className="card-footer">Pwr {card.power}</div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState("play_rlhf"); // "play_rlhf" | "theater" | "leaderboard" | "koth"
+      const [leaderboard, setLeaderboard] = useState({ players: [], head_to_head: {} });
+      const [trainStatus, setTrainStatus] = useState({ is_running: false, job_type: "idle", progress_pct: 0, logs: [] });
+
+      // Interactive Human Play + RLHF State
+      const [playOpponentId, setPlayOpponentId] = useState("jev_champion");
+      const [hideOpponentIdentity, setHideOpponentIdentity] = useState(false);
+      const [playSession, setPlaySession] = useState(null);
+      const [rlhfTrainMsg, setRlhfTrainMsg] = useState(null);
+      const [trainingRlhf, setTrainingRlhf] = useState(false);
+
+      // Video Theater State
+      const [p0Id, setP0Id] = useState("jev_champion");
+      const [p1Id, setP1Id] = useState("jev_base");
+      const [numHandsSim, setNumHandsSim] = useState(4);
+      const [recording, setRecording] = useState(null);
+      const [frameIdx, setFrameIdx] = useState(0);
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [fpsDelay, setFpsDelay] = useState(1100);
+      const [showBothHands, setShowBothHands] = useState(true);
+      const [loadingSim, setLoadingSim] = useState(false);
+
+      // King of the Hill Form State
+      const [kothGens, setKothGens] = useState(2);
+      const [kothHands, setKothHands] = useState(300);
+      const [kothEpochs, setKothEpochs] = useState(5);
+      const [pruneKeepK, setPruneKeepK] = useState(8);
+      const staticBundleRef = useRef(null);
+
+      const loadStaticBundle = async () => {
+        if (staticBundleRef.current) return staticBundleRef.current;
+        for (const candidate of ["./docs/data/static_bundle.json", "../docs/data/static_bundle.json", "docs/data/static_bundle.json"]) {
+          try {
+            const r = await fetch(candidate);
+            if (r.ok) {
+              const b = await r.json();
+              staticBundleRef.current = b;
+              return b;
+            }
+          } catch (_) {}
+        }
+        return null;
+      };
+
+      const pruneLeaderboard = async (payload) => {
+        try {
+          const res = await fetch("/api/leaderboard/prune", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error("Static mode");
+          const data = await res.json();
+          setLeaderboard(data);
+        } catch (err) {
+          // Client-side pruning fallback for static GitHub Pages (github.io)
+          setLeaderboard((prev) => {
+            const players = [...(prev.players || [])];
+            let kept = players;
+            if (payload.mode === "top_k") {
+              kept = players.slice(0, Math.max(2, Number(payload.keep_k) || 8));
+            } else if (payload.mode === "win_rate") {
+              const minWr = Number(payload.min_win_rate) || 50.0;
+              kept = players.filter((p, i) => i < 2 || p.match_win_rate >= minWr);
+            } else if (payload.mode === "remove_one") {
+              kept = players.filter((p) => p.player_id !== payload.player_id);
+            } else if (payload.mode === "restore_all" && staticBundleRef.current?.leaderboard) {
+              return staticBundleRef.current.leaderboard;
+            }
+            const renumbered = kept.map((p, i) => ({ ...p, rank: i + 1 }));
+            return {
+              ...prev,
+              players: renumbered,
+              disabled_count: (prev.disabled_count || 0) + (players.length - renumbered.length),
+            };
+          });
+        }
+      };
+
+      const fetchLeaderboard = async () => {
+        try {
+          const res = await fetch("/api/leaderboard");
+          if (!res.ok) throw new Error("Static mode");
+          const data = await res.json();
+          setLeaderboard(data);
+          if (data.players && data.players.length >= 2) {
+            setP0Id((prev) => prev || data.players[0].player_id);
+            setP1Id((prev) => prev || data.players[1].player_id);
+            setPlayOpponentId((prev) => prev || data.players[0].player_id);
+          }
+        } catch (err) {
+          const bundle = await loadStaticBundle();
+          if (bundle?.leaderboard) {
+            setLeaderboard(bundle.leaderboard);
+          }
+        }
+      };
+
+      const fetchPlayState = async () => {
+        try {
+          const res = await fetch("/api/play/state");
+          if (!res.ok) throw new Error("Static mode");
+          const data = await res.json();
+          setPlaySession(data);
+          if (typeof data.hide_identity === "boolean") {
+            setHideOpponentIdentity(data.hide_identity);
+          }
+        } catch (err) {
+          const bundle = await loadStaticBundle();
+          if (bundle?.default_play_session) {
+            setPlaySession(bundle.default_play_session);
+          }
+        }
+      };
+
+      const startHumanMatch = async (oppId, hideOverride = null) => {
+        setRlhfTrainMsg(null);
+        const useHide = hideOverride !== null ? hideOverride : hideOpponentIdentity;
+        const targetOpp = oppId || (useHide ? "mystery" : playOpponentId);
+        const res = await fetch("/api/play/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            opponent_id: targetOpp,
+            hide_identity: useHide,
+          }),
+        });
+        const data = await res.json();
+        setPlaySession(data);
+      };
+
+      const toggleHideOpponentIdentity = async (checked) => {
+        setHideOpponentIdentity(checked);
+        if (checked) {
+          setPlayOpponentId("mystery");
+          await startHumanMatch("mystery", true);
+        } else {
+          const res = await fetch("/api/play/hide-identity", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ hide_identity: false }),
+          });
+          const data = await res.json();
+          setPlaySession(data);
+          if (data.opponent && data.opponent.id && data.opponent.id !== "mystery") {
+            setPlayOpponentId(data.opponent.id);
+          }
+        }
+      };
+
+      const sendHumanAction = async (actionIdx) => {
+        const res = await fetch("/api/play/action", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action_idx: actionIdx }),
+        });
+        const data = await res.json();
+        setPlaySession(data);
+        if (data.is_terminal) {
+          fetchLeaderboard();
+        }
+      };
+
+      const nextHumanHand = async () => {
+        const res = await fetch("/api/play/next-hand", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        const data = await res.json();
+        setPlaySession(data);
+      };
+
+      const sendTurnFeedback = async (turnId, fbType, preferredIdx) => {
+        const res = await fetch("/api/play/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            turn_id: turnId,
+            feedback_type: fbType,
+            preferred_action_idx: preferredIdx,
+          }),
+        });
+        const data = await res.json();
+        setPlaySession(data);
+      };
+
+      const triggerRlhfFineTune = async () => {
+        setTrainingRlhf(true);
+        setRlhfTrainMsg(null);
+        try {
+          const res = await fetch("/api/play/train-rlhf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ epochs: 8 }),
+          });
+          const data = await res.json();
+          setRlhfTrainMsg(data);
+          fetchLeaderboard();
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setTrainingRlhf(false);
+        }
+      };
+
+      const fetchTrainStatus = async () => {
+        try {
+          const res = await fetch("/api/training/status");
+          if (!res.ok) throw new Error("Static mode");
+          const data = await res.json();
+          setTrainStatus((prev) => {
+            if (prev.is_running && !data.is_running) {
+              fetchLeaderboard();
+            }
+            return data;
+          });
+        } catch (err) {
+          const bundle = await loadStaticBundle();
+          if (bundle?.train_status) {
+            setTrainStatus(bundle.train_status);
+          }
+        }
+      };
+
+      const generateGameVideo = async (customP0, customP1) => {
+        setLoadingSim(true);
+        setIsPlaying(false);
+        const a = customP0 || p0Id;
+        const b = customP1 || p1Id;
+        try {
+          const res = await fetch("/api/simulate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              player0_id: a,
+              player1_id: b,
+              num_hands: Number(numHandsSim) || 4,
+            }),
+          });
+          if (!res.ok) throw new Error("Static mode");
+          const data = await res.json();
+          setRecording(data);
+          setFrameIdx(0);
+          setIsPlaying(true);
+        } catch (err) {
+          const bundle = await loadStaticBundle();
+          if (bundle) {
+            const key1 = `${a}__vs__${b}`;
+            const key2 = `${b}__vs__${a}`;
+            const rec = (bundle.recordings && (bundle.recordings[key1] || bundle.recordings[key2])) || bundle.default_recording;
+            if (rec) {
+              setRecording(rec);
+              setFrameIdx(0);
+              setIsPlaying(true);
+            }
+          }
+        } finally {
+          setLoadingSim(false);
+        }
+      };
+
+      useEffect(() => {
+        if (typeof HTMLInputElement !== "undefined" && !("switch" in HTMLInputElement.prototype)) {
+          import("input-switch-polyfill").catch(() => {});
+        }
+        fetchLeaderboard();
+        fetchPlayState();
+        fetchTrainStatus();
+        generateGameVideo("jev_champion", "jev_base");
+        const interval = setInterval(fetchTrainStatus, 650);
+        return () => clearInterval(interval);
+      }, []);
+
+      // Video Playback Timer
+      useEffect(() => {
+        if (!isPlaying || !recording || !recording.frames) return;
+        if (frameIdx >= recording.frames.length - 1) {
+          setIsPlaying(false);
+          return;
+        }
+        const timer = setTimeout(() => {
+          setFrameIdx((idx) => Math.min(recording.frames.length - 1, idx + 1));
+        }, fpsDelay);
+        return () => clearTimeout(timer);
+      }, [isPlaying, frameIdx, recording, fpsDelay]);
+
+      const startKothTraining = async () => {
+        await fetch("/api/train/koth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            generations: Number(kothGens),
+            hands_per_gen: Number(kothHands),
+            epochs: Number(kothEpochs),
+            tournament_rounds: 4,
+          }),
+        });
+        fetchTrainStatus();
+      };
+
+      const startTournament = async () => {
+        await fetch("/api/tournament", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rounds: 5, reset: true }),
+        });
+        fetchTrainStatus();
+      };
+
+      const startChampionshipAndRetrainAll = async () => {
+        setActiveTab("koth");
+        await fetch("/api/train/championship-retrain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            championship_rounds: 2,
+            epochs: Number(kothEpochs) || 5,
+          }),
+        });
+        fetchTrainStatus();
+      };
+
+      const currentFrame =
+        recording && recording.frames && recording.frames[frameIdx]
+          ? recording.frames[frameIdx]
+          : null;
+
+      return (
+        <div>
+          <header className="app-header">
+            <div className="brand-title">
+              <span style={{ fontSize: "1.7rem" }}>🃏</span>
+              <div>
+                <h1>JEV-Truco Arena</h1>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                  Argentine Truco • System 1 Small Language Model (4-Layer SwiGLU Transformer)
+                </div>
+              </div>
+              <span className="badge-sys1">⚡ ~3ms Single-Token Policy Head</span>
+            </div>
+
+            <nav className="nav-tabs">
+              <button
+                className={`nav-btn ${activeTab === "play_rlhf" ? "active" : ""}`}
+                onClick={() => setActiveTab("play_rlhf")}
+              >
+                🎮 Play vs AI & RLHF Coach
+              </button>
+              <button
+                className={`nav-btn ${activeTab === "theater" ? "active" : ""}`}
+                onClick={() => setActiveTab("theater")}
+              >
+                🎬 Game Video Theater
+              </button>
+              <button
+                className={`nav-btn ${activeTab === "leaderboard" ? "active" : ""}`}
+                onClick={() => setActiveTab("leaderboard")}
+              >
+                🏆 Leaderboard & Matrix
+              </button>
+              <button
+                className={`nav-btn ${activeTab === "koth" ? "active" : ""}`}
+                onClick={() => setActiveTab("koth")}
+              >
+                👑 King-of-the-Hill Trainer
+                {trainStatus.is_running && " (Running...)"}
+              </button>
+            </nav>
+          </header>
+
+          <main className="container">
+            {/* TAB 0: PLAY VS TOP MODEL & HUMAN FEEDBACK LOOP (RLHF) */}
+            {activeTab === "play_rlhf" && playSession && playSession.active && (
+              <section className="panel">
+                <div className="panel-header">
+                  <h2>🎮 Play Against Top Models & Human Feedback Loop (RLHF)</h2>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
+                    <label
+                      htmlFor="hide-opponent-switch"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.45rem",
+                        fontSize: "0.82rem",
+                        background: hideOpponentIdentity ? "rgba(245, 185, 66, 0.16)" : "rgba(15, 23, 42, 0.65)",
+                        border: `1px solid ${hideOpponentIdentity ? "var(--accent-gold)" : "var(--border-subtle)"}`,
+                        padding: "0.38rem 0.68rem",
+                        borderRadius: "0.45rem",
+                        cursor: "pointer",
+                        color: hideOpponentIdentity ? "var(--accent-gold)" : "var(--text-main)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <span>🕵️ Hide Opponent Identity (Reveal After Match)</span>
+                      <input
+                        id="hide-opponent-switch"
+                        type="checkbox"
+                        {...({ switch: "" })}
+                        checked={hideOpponentIdentity}
+                        onChange={(e) => toggleHideOpponentIdentity(e.target.checked)}
+                      />
+                    </label>
+
+                    <label style={{ fontSize: "0.84rem", color: "var(--text-muted)" }}>Choose AI Opponent:</label>
+                    <select
+                      className="select-input"
+                      value={playSession.opponent.is_masked ? "mystery" : playOpponentId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPlayOpponentId(val);
+                        if (val === "mystery") {
+                          setHideOpponentIdentity(true);
+                          startHumanMatch("mystery", true);
+                        } else {
+                          startHumanMatch(val, hideOpponentIdentity);
+                        }
+                      }}
+                    >
+                      <option value="mystery">
+                        🎲 Mystery Opponent (Random Top Bot / Persona — Hidden Until 15 Pts)
+                      </option>
+                      {leaderboard.players
+                        .filter((p) => p.player_id !== "human_player")
+                        .map((p) => (
+                          <option key={p.player_id} value={p.player_id}>
+                            #{p.rank} {p.display_name} ({p.elo} Elo — {p.model_type})
+                          </option>
+                        ))}
+                    </select>
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => startHumanMatch(hideOpponentIdentity ? "mystery" : playOpponentId, hideOpponentIdentity)}
+                    >
+                      🔄 New 15-Pt Match
+                    </button>
+                  </div>
+                </div>
+
+                <div className="theater-grid">
+                  {/* LEFT: INTERACTIVE FELT TABLE */}
+                  <div>
+                    <div className="felt-stage">
+                      {/* TOP: AI OPPONENT */}
+                      <div className={`player-zone ${playSession.current_player === 1 && !playSession.is_terminal ? "active-turn" : ""}`}>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <strong style={{ fontSize: "1rem" }}>{playSession.opponent.name}</strong>
+                            <span className="badge-sys1">{playSession.opponent.elo} Elo</span>
+                            {playSession.opponent.revealed && (
+                              <span style={{
+                                fontSize: "0.72rem",
+                                background: "rgba(245, 185, 66, 0.22)",
+                                border: "1px solid var(--accent-gold)",
+                                color: "var(--accent-gold)",
+                                padding: "2px 7px",
+                                borderRadius: "4px",
+                                fontWeight: 700,
+                              }}>
+                                🎭 IDENTITY REVEALED
+                              </span>
+                            )}
+                            {playSession.mano === 1 && (
+                              <span style={{ fontSize: "0.75rem", background: "#0284c7", padding: "2px 7px", borderRadius: "4px" }}>
+                                MANO
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                            {playSession.opponent.model_type || "AI Opponent"}{" "}
+                            {playSession.opp_envido !== null
+                              ? `• Cantó Envido: ${playSession.opp_envido}`
+                              : playSession.opp_son_buenas
+                              ? '• Envido: "Son buenas" (No cantó sus puntos)'
+                              : "• Cards Hidden"}
+                          </div>
+                        </div>
+
+                        {((playSession.hand_log.length > 0 &&
+                          playSession.hand_log[playSession.hand_log.length - 1].actor === 1 &&
+                          playSession.hand_log[playSession.hand_log.length - 1].speech_bubble) ||
+                          playSession.opp_envido_speech) && (
+                          <div className="speech-bubble">
+                            {playSession.hand_log.length > 0 &&
+                            playSession.hand_log[playSession.hand_log.length - 1].actor === 1 &&
+                            playSession.hand_log[playSession.hand_log.length - 1].speech_bubble
+                              ? playSession.hand_log[playSession.hand_log.length - 1].speech_bubble
+                              : playSession.opp_envido_speech}
+                          </div>
+                        )}
+
+                        <div className="cards-row">
+                          {playSession.hands[1].map((c, idx) => (
+                            <SpanishCard key={idx} card={c} hideFace={c.hidden} />
+                          ))}
+                        </div>
+
+                        <div style={{ textAlign: "end" }}>
+                          <div style={{ fontSize: "0.72rem", color: "#cbd5e1" }}>AI SCORE</div>
+                          <div style={{ fontSize: "1.65rem", fontWeight: 800, color: "var(--accent-gold)" }}>
+                            {playSession.match_scores[1]}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* CENTER: TRICKS + STATUS BANNER */}
+                      <div>
+                        <div style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBlockEnd: "0.45rem",
+                          padding: "0 0.35rem"
+                        }}>
+                          <span style={{ fontSize: "0.86rem", fontWeight: 700 }}>
+                            Hand #{playSession.hand_number} • Current Stakes: {playSession.truco_stakes} pt(s)
+                            {playSession.pending_state !== "NONE" && (
+                              <span style={{ color: "var(--accent-gold)", marginInlineStart: "0.5rem" }}>
+                                (Responding to {playSession.pending_state}!)
+                              </span>
+                            )}
+                          </span>
+
+                          {playSession.is_terminal && (
+                            <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "var(--accent-gold)" }}>
+                              Hand Over! You +{playSession.points_won_hand[0]} pts | {playSession.opponent.name} +{playSession.points_won_hand[1]} pts
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="tricks-arena">
+                          {[0, 1, 2].map((tIdx) => {
+                            const trickObj = playSession.tricks[tIdx] || { cards: [], winner: null };
+                            let winnerBadge = "Waiting";
+                            if (trickObj.winner === 0) winnerBadge = "You Won Trick";
+                            else if (trickObj.winner === 1) winnerBadge = `${playSession.opponent.name} Won`;
+                            else if (trickObj.winner === -1) winnerBadge = "PARDA (Tie)";
+
+                            return (
+                              <div key={tIdx} className="trick-slot">
+                                <div className="trick-slot-header">
+                                  Trick {tIdx + 1} ({tIdx === 0 ? "Primera" : tIdx === 1 ? "Segunda" : "Tercera"})
+                                </div>
+                                <div className="trick-cards-pair">
+                                  {trickObj.cards.map((tc, cIdx) => (
+                                    <div key={cIdx} style={{ textAlign: "center" }}>
+                                      <SpanishCard card={tc.card} />
+                                      <div style={{ fontSize: "0.68rem", marginTop: "3px", color: "#cbd5e1" }}>
+                                        {tc.player === 0 ? "You" : "AI"}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div style={{ fontSize: "0.73rem", color: "var(--accent-gold)", fontWeight: 600 }}>
+                                  {winnerBadge}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* BOTTOM: YOU (HUMAN) + ACTION BAR */}
+                      <div className={`player-zone ${playSession.current_player === 0 && !playSession.is_terminal ? "active-turn" : ""}`}>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <strong style={{ fontSize: "1rem" }}>You (Human)</strong>
+                            {playSession.mano === 0 && (
+                              <span style={{ fontSize: "0.75rem", background: "#0284c7", padding: "2px 7px", borderRadius: "4px" }}>
+                                MANO
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                            Your Envido Score: <strong style={{ color: "var(--accent-gold)" }}>{playSession.human_envido}</strong>
+                            {playSession.human_son_buenas && (
+                              <span style={{ color: "#34d399", marginInlineStart: "0.45rem", fontWeight: 600 }}>
+                                • 🤫 You said "Son buenas" (Hidden from AI!)
+                              </span>
+                            )}
+                            {" "}• Click a card or call button below
+                          </div>
+                        </div>
+
+                        <div className="cards-row">
+                          {playSession.hands[0].map((c, slotIdx) => {
+                            const canPlayThisSlot = playSession.legal_human_actions.some(
+                              (a) => a.is_card && a.slot === slotIdx
+                            );
+                            return (
+                              <SpanishCard
+                                key={slotIdx}
+                                card={c}
+                                onClick={canPlayThisSlot ? () => sendHumanAction(slotIdx) : null}
+                              />
+                            );
+                          })}
+                        </div>
+
+                        <div style={{ textAlign: "end" }}>
+                          <div style={{ fontSize: "0.72rem", color: "#cbd5e1" }}>YOUR SCORE</div>
+                          <div style={{ fontSize: "1.65rem", fontWeight: 800, color: "#34d399" }}>
+                            {playSession.match_scores[0]}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* POST-MATCH IDENTITY REVEAL BANNER */}
+                    {playSession.match_over && playSession.opponent.revealed && (
+                      <div style={{
+                        marginBlockStart: "0.75rem",
+                        background: "linear-gradient(90deg, rgba(245, 185, 66, 0.2), rgba(56, 189, 248, 0.16))",
+                        border: "1px solid var(--accent-gold)",
+                        borderRadius: "0.65rem",
+                        padding: "0.7rem 1rem",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "0.5rem",
+                      }}>
+                        <div style={{ fontSize: "0.9rem" }}>
+                          🎭 <strong style={{ color: "var(--accent-gold)" }}>Mystery Opponent Revealed:</strong>{" "}
+                          You just played against <strong>{playSession.opponent.name}</strong>{" "}
+                          <span style={{ color: "#38bdf8" }}>({playSession.opponent.elo} Elo • {playSession.opponent.model_type})</span>!
+                        </div>
+                        <button
+                          className="btn btn-outline"
+                          style={{ padding: "0.3rem 0.65rem", fontSize: "0.76rem" }}
+                          onClick={() => startHumanMatch("mystery", true)}
+                        >
+                          🎲 Play Another Mystery Opponent
+                        </button>
+                      </div>
+                    )}
+
+                    {/* HUMAN ACTION BUTTONS BAR */}
+                    <div className="video-controls-bar">
+                      {!playSession.is_terminal ? (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center" }}>
+                          <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--accent-gold)", marginInlineEnd: "0.4rem" }}>
+                            Your Legal Actions:
+                          </span>
+                          {playSession.legal_human_actions.map((act) => (
+                            <button
+                              key={act.action_idx}
+                              className={`btn ${act.is_card ? "btn-primary" : "btn-gold"}`}
+                              onClick={() => sendHumanAction(act.action_idx)}
+                            >
+                              {act.is_card ? `🃏 ${act.label}` : `🗣️ ${act.label}`}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontWeight: 700, color: "var(--accent-gold)" }}>
+                            {playSession.match_over
+                              ? playSession.match_winner === 0
+                                ? `🏆 YOU WON THE 15-POINT MATCH vs ${playSession.opponent.name}! (Recorded on Leaderboard)`
+                                : `🤖 ${playSession.opponent.name} won the match!`
+                              : `Hand #${playSession.hand_number} finished! Review AI moves on the right or deal next hand.`}
+                          </span>
+                          {!playSession.match_over ? (
+                            <button className="btn btn-gold" onClick={nextHumanHand}>
+                              ▶ Deal Next Hand
+                            </button>
+                          ) : (
+                            <button
+                              className="btn btn-gold"
+                              onClick={() => startHumanMatch(hideOpponentIdentity ? "mystery" : playOpponentId, hideOpponentIdentity)}
+                            >
+                              🔄 Play Rematch
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* RIGHT SIDEBAR: LIVE RLHF COACH & AI MOVE CRITIQUE */}
+                  <div className="panel" style={{ background: "var(--bg-panel-alt)", padding: "1.1rem" }}>
+                    <h3 style={{ margin: "0 0 0.35rem 0", fontSize: "1rem", color: "var(--accent-gold)" }}>
+                      🧑‍🏫 Human Feedback Loop (RLHF Coach)
+                    </h3>
+                    <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBlockStart: 0 }}>
+                      Every winning hand you play is recorded as an expert demo. You can also <strong>Approve (👍)</strong> or{" "}
+                      <strong>Override (👎)</strong> any move {playSession.opponent.name} makes below, then click{" "}
+                      <strong>Fine-Tune AI</strong> to update its weights immediately!
+                    </p>
+
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      background: "#070b14",
+                      padding: "0.55rem 0.75rem",
+                      borderRadius: "0.5rem",
+                      marginBlockEnd: "0.65rem",
+                      fontSize: "0.78rem"
+                    }}>
+                      <div>
+                        Buffer: <strong>{playSession.rlhf_stats.total_samples}</strong> samples
+                        {" "}({playSession.rlhf_stats.overrides} overrides, {playSession.rlhf_stats.hindsight_reveals || 0} hindsight, {playSession.rlhf_stats.human_demos} demos)
+                      </div>
+                      <button
+                        className="btn btn-gold"
+                        style={{ padding: "0.35rem 0.7rem", fontSize: "0.76rem" }}
+                        disabled={trainingRlhf || playSession.rlhf_stats.total_samples === 0}
+                        onClick={triggerRlhfFineTune}
+                      >
+                        {trainingRlhf ? "Updating..." : "⚡ Fine-Tune AI Now"}
+                      </button>
+                    </div>
+
+                    {/* LIVE BAYESIAN HIDDEN-CARD BELIEF TRACKER (FED INTO SYSTEM 1 <ACT>) */}
+                    {playSession.live_ai_belief && (
+                      <div style={{
+                        background: "#070b14",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "0.5rem",
+                        padding: "0.6rem 0.75rem",
+                        marginBlockEnd: "0.75rem",
+                        fontSize: "0.75rem"
+                      }}>
+                        <div style={{ fontWeight: 700, color: "#38bdf8", marginBlockEnd: "0.35rem", display: "flex", justifyContent: "space-between" }}>
+                          <span>🎲 AI Live Hidden-Card Belief (Blind Inference)</span>
+                          <span style={{ color: "var(--text-muted)" }}>In System-1 Prompt</span>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.4rem" }}>
+                          <div style={{ background: "#0f172a", padding: "0.35rem 0.45rem", borderRadius: "0.35rem" }}>
+                            <div style={{ color: "var(--text-muted)", fontSize: "0.68rem" }}>P(AI Beats Your Best)</div>
+                            <strong style={{ color: "#34d399", fontSize: "0.86rem" }}>
+                              {Math.round(playSession.live_ai_belief.p_beat_opp_best * 100)}%
+                            </strong>
+                            <div style={{ fontSize: "0.65rem", color: "#64748b" }}>{playSession.live_ai_belief.win_token}</div>
+                          </div>
+                          <div style={{ background: "#0f172a", padding: "0.35rem 0.45rem", borderRadius: "0.35rem" }}>
+                            <div style={{ color: "var(--text-muted)", fontSize: "0.68rem" }}>P(You Hold Monster)</div>
+                            <strong style={{ color: "#fb7185", fontSize: "0.86rem" }}>
+                              {Math.round(playSession.live_ai_belief.p_opp_monster * 100)}%
+                            </strong>
+                            <div style={{ fontSize: "0.65rem", color: "#64748b" }}>{playSession.live_ai_belief.threat_token}</div>
+                          </div>
+                          <div style={{ background: "#0f172a", padding: "0.35rem 0.45rem", borderRadius: "0.35rem" }}>
+                            <div style={{ color: "var(--text-muted)", fontSize: "0.68rem" }}>P(AI Wins Envido)</div>
+                            <strong style={{ color: "var(--accent-gold)", fontSize: "0.86rem" }}>
+                              {Math.round(playSession.live_ai_belief.p_win_envido * 100)}%
+                            </strong>
+                            <div style={{ fontSize: "0.65rem", color: "#64748b" }}>{playSession.live_ai_belief.env_token}</div>
+                          </div>
+                        </div>
+                        {playSession.live_ai_belief.envido_card_hint && (
+                          <div style={{
+                            marginBlockStart: "0.45rem",
+                            padding: "0.35rem 0.5rem",
+                            background: "rgba(56, 189, 248, 0.1)",
+                            border: "1px solid rgba(56, 189, 248, 0.3)",
+                            borderRadius: "0.35rem",
+                            color: "#bae6fd",
+                            fontSize: "0.7rem"
+                          }}>
+                            <div>🧠 <strong>AI Envido→Truco Deduction:</strong> {playSession.live_ai_belief.envido_card_hint}</div>
+                            {playSession.live_ai_belief.envido_hypotheses && playSession.live_ai_belief.envido_hypotheses.length > 0 && (
+                              <ul style={{ margin: "0.25rem 0 0 1.1rem", padding: 0, color: "#e0f2fe", fontSize: "0.67rem" }}>
+                                {playSession.live_ai_belief.envido_hypotheses.map((hyp, idx) => (
+                                  <li key={idx} style={{ marginBlockEnd: "0.1rem" }}>{hyp}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
+                        {playSession.live_human_belief && playSession.live_human_belief.envido_card_hint && (
+                          <div style={{
+                            marginBlockStart: "0.35rem",
+                            padding: "0.35rem 0.5rem",
+                            background: "rgba(245, 185, 66, 0.12)",
+                            border: "1px solid rgba(245, 185, 66, 0.35)",
+                            borderRadius: "0.35rem",
+                            color: "#fde68a",
+                            fontSize: "0.7rem"
+                          }}>
+                            <div>
+                              🎯 <strong>Your Envido→Truco Read on AI:</strong> {playSession.live_human_belief.envido_card_hint}{" "}
+                              (P(You beat AI best) = {Math.round(playSession.live_human_belief.p_beat_opp_best * 100)}%,{" "}
+                              P(AI Monster) = {Math.round(playSession.live_human_belief.p_opp_monster * 100)}%)
+                            </div>
+                            {playSession.live_human_belief.envido_hypotheses && playSession.live_human_belief.envido_hypotheses.length > 0 && (
+                              <ul style={{ margin: "0.25rem 0 0 1.1rem", padding: 0, color: "#fef3c7", fontSize: "0.67rem" }}>
+                                {playSession.live_human_belief.envido_hypotheses.map((hyp, idx) => (
+                                  <li key={idx} style={{ marginBlockEnd: "0.1rem" }}>{hyp}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {rlhfTrainMsg && (
+                      <div style={{
+                        background: "rgba(16, 185, 129, 0.15)",
+                        border: "1px solid #10b981",
+                        borderRadius: "0.45rem",
+                        padding: "0.55rem 0.75rem",
+                        fontSize: "0.78rem",
+                        marginBlockEnd: "0.85rem",
+                        color: "#a7f3d0"
+                      }}>
+                        {rlhfTrainMsg.error ? (
+                          <span>{rlhfTrainMsg.error}</span>
+                        ) : (
+                          <span>
+                            ✅ Fine-tuned <strong>{playSession.opponent.name}</strong> on{" "}
+                            <strong>{rlhfTrainMsg.trained_on_samples}</strong> human + hindsight states!
+                            (Loss: {rlhfTrainMsg.initial_loss} → {rlhfTrainMsg.final_loss})
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div style={{ fontSize: "0.76rem", fontWeight: 700, color: "var(--text-muted)", marginBlockEnd: "0.45rem" }}>
+                      AI MOVES THIS HAND (LIVE CRITIQUE + END-OF-HAND CARD REVEAL):
+                    </div>
+
+                    <div style={{ maxBlockSize: "340px", overflowY: "auto" }}>
+                      {playSession.hand_log.filter((x) => x.actor === 1).length === 0 ? (
+                        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                          Play your turn to see {playSession.opponent.name}'s next move and critique it here.
+                        </div>
+                      ) : (
+                        playSession.hand_log
+                          .filter((x) => x.actor === 1)
+                          .map((turn) => (
+                            <div key={turn.turn_id} className="feedback-card">
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <strong>AI played: <span style={{ color: "#38bdf8" }}>{turn.action_label}</span></strong>
+                                {turn.value_est !== null && (
+                                  <span style={{ fontSize: "0.74rem", color: "var(--text-muted)" }}>
+                                    EV: {turn.value_est >= 0 ? `+${turn.value_est}` : turn.value_est}
+                                  </span>
+                                )}
+                              </div>
+
+                              {turn.ai_belief && (
+                                <div style={{ fontSize: "0.7rem", color: "#94a3b8", marginBlockTop: "0.2rem" }}>
+                                  Blind Belief at Turn: BeatBest={Math.round(turn.ai_belief.p_beat_opp_best * 100)}% •
+                                  OppMonster={Math.round(turn.ai_belief.p_opp_monster * 100)}% •
+                                  WinEnvido={Math.round(turn.ai_belief.p_win_envido * 100)}%
+                                </div>
+                              )}
+
+                              {turn.hindsight && (
+                                <div style={{
+                                  fontSize: "0.72rem",
+                                  background: turn.hindsight.regret_gain >= 1.0 ? "rgba(244, 63, 94, 0.14)" : "rgba(16, 185, 129, 0.12)",
+                                  border: `1px solid ${turn.hindsight.regret_gain >= 1.0 ? "rgba(244, 63, 94, 0.4)" : "rgba(16, 185, 129, 0.35)"}`,
+                                  borderRadius: "0.35rem",
+                                  padding: "0.35rem 0.5rem",
+                                  marginBlockTop: "0.35rem",
+                                  color: "#e2e8f0"
+                                }}>
+                                  🔍 <strong>End-of-Hand Reveal (Your 3 cards: {turn.hindsight.human_cards_revealed}):</strong>{" "}
+                                  {turn.hindsight.regret_gain >= 1.0 ? (
+                                    <span>
+                                      Hindsight found <strong style={{ color: "var(--accent-gold)" }}>{turn.hindsight.best_action_label}</strong>{" "}
+                                      gained <strong>+{turn.hindsight.regret_gain} pts</strong> vs AI's move (Auto-saved to RLHF!).
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: "#6ee7b7" }}>
+                                      Optimal in hindsight against your actual 3 cards (Best EV: {turn.hindsight.best_ev}).
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+
+                              <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", marginBlockTop: "0.5rem", flexWrap: "wrap" }}>
+                                <button
+                                  className="btn btn-outline"
+                                  style={{
+                                    padding: "0.25rem 0.55rem",
+                                    fontSize: "0.74rem",
+                                    borderColor: turn.feedback_status === "thumbs_up" ? "#10b981" : undefined,
+                                    color: turn.feedback_status === "thumbs_up" ? "#34d399" : undefined,
+                                  }}
+                                  onClick={() => sendTurnFeedback(turn.turn_id, "thumbs_up", turn.action_idx)}
+                                >
+                                  👍 Good Move
+                                </button>
+
+                                <select
+                                  className="select-input"
+                                  style={{ padding: "0.25rem 0.45rem", fontSize: "0.74rem" }}
+                                  value={turn.preferred_action_idx}
+                                  onChange={(e) =>
+                                    sendTurnFeedback(turn.turn_id, "override", Number(e.target.value))
+                                  }
+                                >
+                                  {turn.legal_options.map((opt) => (
+                                    <option key={opt.action_idx} value={opt.action_idx}>
+                                      {opt.action_idx === turn.action_idx
+                                        ? `AI Choice: ${opt.label}`
+                                        : `👎 Should play: ${opt.label}`}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {turn.feedback_status === "override" && (
+                                <div style={{ fontSize: "0.73rem", color: "var(--accent-gold)", marginBlockTop: "0.35rem" }}>
+                                  ✍️ Recorded human override! AI will be penalized for '{turn.action_label}' and trained to play your selected action.
+                                </div>
+                              )}
+                              {turn.feedback_status === "thumbs_up" && (
+                                <div style={{ fontSize: "0.73rem", color: "#34d399", marginBlockTop: "0.35rem" }}>
+                                  👍 Approved move added to RLHF buffer.
+                                </div>
+                              )}
+                            </div>
+                          ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* TAB 1: GAME VIDEO REPLAY THEATER */}
+            {activeTab === "theater" && (
+              <section className="panel">
+                <div className="panel-header">
+                  <h2>🎬 Truco Match Video Replay Theater</h2>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", alignItems: "center" }}>
+                    <label style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>Player 0 (Bottom):</label>
+                    <select className="select-input" value={p0Id} onChange={(e) => setP0Id(e.target.value)}>
+                      {leaderboard.players.map((p) => (
+                        <option key={p.player_id} value={p.player_id}>
+                          #{p.rank} {p.display_name} ({p.elo} Elo)
+                        </option>
+                      ))}
+                    </select>
+
+                    <span style={{ fontWeight: 700, color: "var(--accent-gold)" }}>VS</span>
+
+                    <label style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>Player 1 (Top):</label>
+                    <select className="select-input" value={p1Id} onChange={(e) => setP1Id(e.target.value)}>
+                      {leaderboard.players.map((p) => (
+                        <option key={p.player_id} value={p.player_id}>
+                          #{p.rank} {p.display_name} ({p.elo} Elo)
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      className="btn btn-gold"
+                      disabled={loadingSim}
+                      onClick={() => generateGameVideo(p0Id, p1Id)}
+                    >
+                      {loadingSim ? "Simulating..." : "🎥 Record New Match Video"}
+                    </button>
+                  </div>
+                </div>
+
+                {currentFrame && recording && (
+                  <div className="theater-grid">
+                    {/* LEFT: FELT TABLE + VIDEO CONTROLS */}
+                    <div>
+                      <div className="felt-stage">
+                        {/* TOP PLAYER (Player 1) */}
+                        <div className={`player-zone ${currentFrame.actor === 1 ? "active-turn" : ""}`}>
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                              <strong style={{ fontSize: "1rem" }}>{recording.player1.name}</strong>
+                              <span className="badge-sys1">{recording.player1.elo} Elo</span>
+                              {currentFrame.mano === 1 && (
+                                <span style={{ fontSize: "0.75rem", background: "#0284c7", padding: "2px 7px", borderRadius: "4px" }}>
+                                  MANO
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                              {recording.player1.model_type} • Envido: <strong>{currentFrame.envido_scores[1]}</strong>
+                            </div>
+                          </div>
+
+                          {currentFrame.actor === 1 && currentFrame.speech_bubble && (
+                            <div className="speech-bubble">{currentFrame.speech_bubble}</div>
+                          )}
+
+                          <div className="cards-row">
+                            {currentFrame.hands[1].map((c, idx) => (
+                              <SpanishCard key={idx} card={c} hideFace={!showBothHands && !c.played} />
+                            ))}
+                          </div>
+
+                          <div style={{ textAlign: "end" }}>
+                            <div style={{ fontSize: "0.72rem", color: "#cbd5e1" }}>MATCH SCORE</div>
+                            <div style={{ fontSize: "1.65rem", fontWeight: 800, color: "var(--accent-gold)" }}>
+                              {currentFrame.match_scores[1]}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CENTER: 3 TRICKS (PRIMERA, SEGUNDA, TERCERA) */}
+                        <div>
+                          <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginBlockEnd: "0.4rem",
+                            padding: "0 0.35rem"
+                          }}>
+                            <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "#e2e8f0" }}>
+                              Hand #{currentFrame.hand_index} of {recording.num_hands} • Stakes: {currentFrame.truco_stakes} pt(s)
+                            </span>
+                            <span style={{ fontSize: "0.84rem", color: "var(--accent-gold)", fontWeight: 600 }}>
+                              {currentFrame.event_banner}
+                            </span>
+                          </div>
+
+                          <div className="tricks-arena">
+                            {[0, 1, 2].map((tIdx) => {
+                              const trickObj = currentFrame.tricks[tIdx] || { cards: [], winner: null };
+                              let winnerBadge = "In Progress";
+                              if (trickObj.winner === 0) winnerBadge = `Won by ${recording.player0.name}`;
+                              else if (trickObj.winner === 1) winnerBadge = `Won by ${recording.player1.name}`;
+                              else if (trickObj.winner === -1) winnerBadge = "PARDA (Tie)";
+                              else if (trickObj.cards.length === 0) winnerBadge = "Empty";
+
+                              return (
+                                <div key={tIdx} className="trick-slot">
+                                  <div className="trick-slot-header">
+                                    Trick {tIdx + 1} ({tIdx === 0 ? "Primera" : tIdx === 1 ? "Segunda" : "Tercera"})
+                                  </div>
+                                  <div className="trick-cards-pair">
+                                    {trickObj.cards.map((tc, cIdx) => (
+                                      <div key={cIdx} style={{ textAlign: "center" }}>
+                                        <SpanishCard card={tc.card} />
+                                        <div style={{ fontSize: "0.68rem", marginTop: "3px", color: "#cbd5e1" }}>
+                                          {tc.player === 0 ? recording.player0.name.split(" ")[0] : recording.player1.name.split(" ")[0]}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <div style={{ fontSize: "0.73rem", color: "var(--accent-gold)", fontWeight: 600 }}>
+                                    {winnerBadge}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* BOTTOM PLAYER (Player 0) */}
+                        <div className={`player-zone ${currentFrame.actor === 0 ? "active-turn" : ""}`}>
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                              <strong style={{ fontSize: "1rem" }}>{recording.player0.name}</strong>
+                              <span className="badge-sys1">{recording.player0.elo} Elo</span>
+                              {currentFrame.mano === 0 && (
+                                <span style={{ fontSize: "0.75rem", background: "#0284c7", padding: "2px 7px", borderRadius: "4px" }}>
+                                  MANO
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                              {recording.player0.model_type} • Envido: <strong>{currentFrame.envido_scores[0]}</strong>
+                            </div>
+                          </div>
+
+                          {currentFrame.actor === 0 && currentFrame.speech_bubble && (
+                            <div className="speech-bubble">{currentFrame.speech_bubble}</div>
+                          )}
+
+                          <div className="cards-row">
+                            {currentFrame.hands[0].map((c, idx) => (
+                              <SpanishCard key={idx} card={c} />
+                            ))}
+                          </div>
+
+                          <div style={{ textAlign: "end" }}>
+                            <div style={{ fontSize: "0.72rem", color: "#cbd5e1" }}>MATCH SCORE</div>
+                            <div style={{ fontSize: "1.65rem", fontWeight: 800, color: "var(--accent-gold)" }}>
+                              {currentFrame.match_scores[0]}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* VIDEO TIMELINE SCRUBBER & PLAYBACK CONTROLS */}
+                      <div className="video-controls-bar">
+                        <div className="scrubber-row">
+                          <span style={{ fontSize: "0.8rem", fontWeight: 700, minInlineSize: "95px" }}>
+                            Frame {frameIdx + 1} / {recording.frames.length}
+                          </span>
+                          <input
+                            type="range"
+                            className="scrubber-slider"
+                            min={0}
+                            max={recording.frames.length - 1}
+                            value={frameIdx}
+                            style={{ "--progress": `${(frameIdx / Math.max(1, recording.frames.length - 1)) * 100}%` }}
+                            onChange={(e) => {
+                              setIsPlaying(false);
+                              setFrameIdx(Number(e.target.value));
+                            }}
+                          />
+                          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                            Hand #{currentFrame.hand_index}
+                          </span>
+                        </div>
+
+                        <div className="controls-buttons-row">
+                          <div style={{ display: "flex", gap: "0.45rem" }}>
+                            <button
+                              className="btn btn-outline"
+                              onClick={() => { setIsPlaying(false); setFrameIdx(0); }}
+                            >
+                              ⏮ Start
+                            </button>
+                            <button
+                              className="btn btn-outline"
+                              onClick={() => { setIsPlaying(false); setFrameIdx((i) => Math.max(0, i - 1)); }}
+                            >
+                              ◀ Prev Step
+                            </button>
+                            <button
+                              className="btn btn-gold"
+                              onClick={() => {
+                                if (frameIdx >= recording.frames.length - 1) setFrameIdx(0);
+                                setIsPlaying((p) => !p);
+                              }}
+                            >
+                              {isPlaying ? "⏸ Pause Video" : "▶ Play Video"}
+                            </button>
+                            <button
+                              className="btn btn-outline"
+                              onClick={() => {
+                                setIsPlaying(false);
+                                setFrameIdx((i) => Math.min(recording.frames.length - 1, i + 1));
+                              }}
+                            >
+                              Next Step ▶
+                            </button>
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                            <label style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                              Speed:
+                              <select
+                                className="select-input"
+                                style={{ marginInlineStart: "0.4rem" }}
+                                value={fpsDelay}
+                                onChange={(e) => setFpsDelay(Number(e.target.value))}
+                              >
+                                <option value={2000}>0.5x (Slow)</option>
+                                <option value={1100}>1.0x (Normal)</option>
+                                <option value={550}>2.0x (Fast)</option>
+                                <option value={250}>4.0x (Turbo)</option>
+                              </select>
+                            </label>
+
+                            <label className="custom-check-label" style={{ fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "0.35rem", cursor: "pointer" }}>
+                              <input
+                                type="checkbox"
+                                className="visually-hidden"
+                                checked={showBothHands}
+                                onChange={(e) => setShowBothHands(e.target.checked)}
+                              />
+                              <span>X-Ray Both Hands</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* RIGHT SIDEBAR: SYSTEM 1 SLM BRAIN TELEMETRY */}
+                    <div className="panel" style={{ background: "var(--bg-panel-alt)", padding: "1.1rem" }}>
+                      <h3 style={{ margin: "0 0 0.75rem 0", fontSize: "1rem", color: "var(--accent-gold)" }}>
+                        🧠 System 1 SLM Telemetry
+                      </h3>
+
+                      <div style={{ marginBlockEnd: "1rem", fontSize: "0.85rem" }}>
+                        <div>
+                          <span style={{ color: "var(--text-muted)" }}>Active Decision By: </span>
+                          <strong>
+                            {currentFrame.actor === 0
+                              ? recording.player0.name
+                              : currentFrame.actor === 1
+                              ? recording.player1.name
+                              : "Table Deal"}
+                          </strong>
+                        </div>
+                        <div style={{ marginBlockStart: "0.25rem" }}>
+                          <span style={{ color: "var(--text-muted)" }}>Chosen Action: </span>
+                          <strong style={{ color: "var(--accent-emerald)" }}>{currentFrame.action_label}</strong>
+                        </div>
+                        {currentFrame.value_est !== null && (
+                          <div style={{ marginBlockStart: "0.25rem" }}>
+                            <span style={{ color: "var(--text-muted)" }}>Value Head Estimate: </span>
+                            <strong style={{ color: currentFrame.value_est >= 0 ? "#34d399" : "#fb7185" }}>
+                              {currentFrame.value_est >= 0 ? `+${currentFrame.value_est}` : currentFrame.value_est} net pts
+                            </strong>
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ marginBlockEnd: "1rem" }}>
+                        <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", marginBlockEnd: "0.4rem" }}>
+                          SINGLE-TOKEN ACTION HEAD PROBABILITIES
+                        </div>
+                        {currentFrame.top_probs && currentFrame.top_probs.length > 0 ? (
+                          currentFrame.top_probs.map((item, idx) => (
+                            <div key={idx} style={{ marginBlockEnd: "0.55rem" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
+                                <span>{item.action}</span>
+                                <strong>{item.prob}%</strong>
+                              </div>
+                              <div className="prob-bar-track">
+                                <div className="prob-bar-fill" style={{ inlineSize: `${Math.min(100, item.prob)}%` }} />
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                            Initial card deal frame — press Next or Play to see action probabilities.
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", marginBlockEnd: "0.4rem" }}>
+                          EXACT SYSTEM 1 OBSERVATION TOKEN STREAM (&lt;ACT&gt;)
+                        </div>
+                        <div className="prompt-box">{currentFrame.sys1_prompt}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* TAB 2: LEADERBOARD & HEAD-TO-HEAD MATRIX */}
+            {activeTab === "leaderboard" && (
+              <section className="panel">
+                <div className="panel-header">
+                  <h2>🏆 Argentine Truco AI Leaderboard (Anchored to Base Model = 1500 Elo)</h2>
+                  <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+                    <button className="btn btn-outline" onClick={fetchLeaderboard}>
+                      🔄 Refresh
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      disabled={trainStatus.is_running}
+                      onClick={startTournament}
+                    >
+                      ⚔️ Run Round-Robin Tournament
+                    </button>
+                    <button
+                      className="btn btn-gold"
+                      disabled={trainStatus.is_running}
+                      onClick={startChampionshipAndRetrainAll}
+                    >
+                      🏆 Championship + Retrain All Models
+                    </button>
+                  </div>
+                </div>
+
+                {/* Roster Pruning & Losing-Tail Removal Controls */}
+                <div style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "0.75rem",
+                  background: "rgba(15, 23, 42, 0.75)",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: "0.55rem",
+                  padding: "0.65rem 0.9rem",
+                  marginBlockEnd: "1rem",
+                  fontSize: "0.8rem"
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+                    <span style={{ fontWeight: 700, color: "#e2e8f0" }}>
+                      ✂️ Roster Pruning:
+                    </span>
+                    <span className="badge badge-blue">
+                      Active: {leaderboard.players.length} models
+                    </span>
+                    {(leaderboard.disabled_count || 0) > 0 && (
+                      <span className="badge badge-gold">
+                        Pruned Tail: {leaderboard.disabled_count} hidden
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                      <label style={{ color: "var(--text-muted)", fontSize: "0.76rem" }}>Keep Top:</label>
+                      <input
+                        type="number"
+                        className="num-input"
+                        style={{ inlineSize: "62px", padding: "0.28rem 0.45rem", fontSize: "0.78rem" }}
+                        min={2}
+                        max={25}
+                        value={pruneKeepK}
+                        onChange={(e) => setPruneKeepK(e.target.value)}
+                      />
+                      <button
+                        className="btn btn-outline"
+                        style={{ padding: "0.32rem 0.65rem", fontSize: "0.75rem" }}
+                        disabled={trainStatus.is_running}
+                        onClick={() => pruneLeaderboard({ mode: "top_k", keep_k: Number(pruneKeepK) || 8 })}
+                      >
+                        ✂️ Keep Top {pruneKeepK} (By Elo)
+                      </button>
+                    </div>
+
+                    <button
+                      className="btn btn-outline"
+                      style={{ padding: "0.32rem 0.65rem", fontSize: "0.75rem", borderColor: "rgba(56, 189, 248, 0.45)", color: "#bae6fd" }}
+                      disabled={trainStatus.is_running}
+                      onClick={() => pruneLeaderboard({ mode: "core_8" })}
+                      title="Keep JEV-Base, Gen 16, JEV-Active, El Gaucho + the 4 Tactical Personalities (8 models total)"
+                    >
+                      🎯 Keep Core 8 (4 Core + 4 Personalities)
+                    </button>
+
+                    <button
+                      className="btn btn-outline"
+                      style={{ padding: "0.32rem 0.65rem", fontSize: "0.75rem", borderColor: "rgba(251, 113, 133, 0.4)", color: "#fecdd3" }}
+                      disabled={trainStatus.is_running}
+                      onClick={() => pruneLeaderboard({ mode: "win_rate", min_win_rate: 50.0 })}
+                    >
+                      📉 Drop &lt; 50% Win Rate
+                    </button>
+
+                    {(leaderboard.disabled_count || 0) > 0 && (
+                      <button
+                        className="btn btn-outline"
+                        style={{ padding: "0.32rem 0.65rem", fontSize: "0.75rem" }}
+                        disabled={trainStatus.is_running}
+                        onClick={() => pruneLeaderboard({ mode: "restore_all" })}
+                      >
+                        🔄 Restore All ({leaderboard.disabled_count})
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Semantic Responsive Table with Sticky Headers */}
+                <div
+                  tabIndex="0"
+                  role="region"
+                  aria-labelledby="truco-leaderboard-caption"
+                  className="table-wrapper"
+                >
+                  <table className="data-table">
+                    <caption id="truco-leaderboard-caption">
+                      Ranked System 1 SLM generations and baseline bots across 15-point duplicate Truco matches
+                    </caption>
+                    <thead>
+                      <tr>
+                        <th>Rank & Player</th>
+                        <th>Model / Architecture</th>
+                        <th>Elo Rating</th>
+                        <th>Matches</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Win %</th>
+                        <th>Net Pts/Hand</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leaderboard.players.map((p) => (
+                        <tr key={p.player_id}>
+                          <th>
+                            #{p.rank} {p.display_name}{" "}
+                            {p.rank === 1 && "👑"}
+                          </th>
+                          <td>{p.model_type}</td>
+                          <td style={{ fontWeight: 800, color: "var(--accent-gold)" }}>{p.elo}</td>
+                          <td>{p.matches_played}</td>
+                          <td style={{ color: "#34d399" }}>{p.matches_won}</td>
+                          <td style={{ color: "#fb7185" }}>{p.matches_lost}</td>
+                          <td>{p.match_win_rate}%</td>
+                          <td style={{ fontWeight: 700, color: p.net_pts_per_hand >= 0 ? "#34d399" : "#fb7185" }}>
+                            {p.net_pts_per_hand >= 0 ? `+${p.net_pts_per_hand}` : p.net_pts_per_hand}
+                          </td>
+                          <td>
+                            <div style={{ display: "flex", gap: "0.35rem" }}>
+                              <button
+                                className="btn btn-gold"
+                                style={{ padding: "0.28rem 0.6rem", fontSize: "0.75rem" }}
+                                onClick={() => {
+                                  setPlayOpponentId(p.player_id);
+                                  setActiveTab("play_rlhf");
+                                  startHumanMatch(p.player_id);
+                                }}
+                              >
+                                🎮 Play & Coach
+                              </button>
+                              <button
+                                className="btn btn-outline"
+                                style={{ padding: "0.28rem 0.6rem", fontSize: "0.75rem" }}
+                                onClick={() => {
+                                  const leaderId = leaderboard.players[0]?.player_id || "jev_base";
+                                  const oppId = p.player_id === leaderId
+                                    ? (leaderboard.players[1]?.player_id || "jev_base")
+                                    : leaderId;
+                                  setP0Id(p.player_id);
+                                  setP1Id(oppId);
+                                  setActiveTab("theater");
+                                  generateGameVideo(p.player_id, oppId);
+                                }}
+                              >
+                                🎬 Video
+                              </button>
+                              <button
+                                className="btn btn-outline"
+                                style={{
+                                  padding: "0.28rem 0.5rem",
+                                  fontSize: "0.75rem",
+                                  borderColor: "rgba(251, 113, 133, 0.35)",
+                                  color: "#fb7185"
+                                }}
+                                title={`Remove ${p.display_name} from active Leaderboard`}
+                                onClick={() => pruneLeaderboard({ mode: "remove_one", player_id: p.player_id })}
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
+
+            {/* TAB 3: KING-OF-THE-HILL & CHAMPIONSHIP RETRAINER */}
+            {activeTab === "koth" && (
+              <section className="panel">
+                <div className="panel-header">
+                  <h2>👑 King-of-the-Hill & Championship Collective Trainer</h2>
+                </div>
+
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBlockStart: 0 }}>
+                  Launch either <strong>King-of-the-Hill</strong> (spawns a new Challenger generation against #1{" "}
+                  {leaderboard.players[0]?.display_name || "Leader"}) or{" "}
+                  <strong>Championship + Retrain All Models</strong> (plays a full Round-Robin Championship with Bayesian{" "}
+                  <code>BELIEF_*</code> tokens, runs Full-Card Hindsight Counterfactual Replay on all hands, and retrains{" "}
+                  <strong>all neural models</strong> on the harvested output).
+                </p>
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "flex-end", marginBlockBottom: "1.25rem" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.8rem", color: "var(--text-muted)", marginBlockEnd: "4px" }}>
+                      Generations (KotH)
+                    </label>
+                    <input
+                      type="number"
+                      className="num-input"
+                      min={1}
+                      max={20}
+                      value={kothGens}
+                      onChange={(e) => setKothGens(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.8rem", color: "var(--text-muted)", marginBlockEnd: "4px" }}>
+                      Counterfactual Hands / Gen
+                    </label>
+                    <input
+                      type="number"
+                      className="num-input"
+                      min={100}
+                      max={10000}
+                      step={100}
+                      value={kothHands}
+                      onChange={(e) => setKothHands(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.8rem", color: "var(--text-muted)", marginBlockEnd: "4px" }}>
+                      Policy/Value Epochs
+                    </label>
+                    <input
+                      type="number"
+                      className="num-input"
+                      min={1}
+                      max={20}
+                      value={kothEpochs}
+                      onChange={(e) => setKothEpochs(e.target.value)}
+                    />
+                  </div>
+
+                  <button
+                    className="btn btn-gold"
+                    disabled={trainStatus.is_running}
+                    onClick={startKothTraining}
+                  >
+                    {trainStatus.is_running
+                      ? `⚡ Running ${trainStatus.job_type}...`
+                      : "🚀 Start King-of-the-Hill (Spawn New Gen)"}
+                  </button>
+
+                  <button
+                    className="btn btn-primary"
+                    disabled={trainStatus.is_running}
+                    onClick={startChampionshipAndRetrainAll}
+                  >
+                    🏆 Run Championship & Retrain All Models
+                  </button>
+                </div>
+
+                <div style={{ marginBlockTop: "1.25rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBlockEnd: "0.4rem" }}>
+                    <span>Job Status: <strong>{trainStatus.job_type}</strong></span>
+                    <span>{trainStatus.progress_pct}%</span>
+                  </div>
+                  <div className="prob-bar-track" style={{ blockSize: "10px", marginBlockEnd: "1rem" }}>
+                    <div className="prob-bar-fill" style={{ inlineSize: `${trainStatus.progress_pct}%` }} />
+                  </div>
+
+                  {/* REAL-TIME TELEMETRY KPI CARDS + WINNER VS LOSER POINTS GRAPH (ADDED ABOVE LOGS) */}
+                  {(() => {
+                    const tel = trainStatus.telemetry || {
+                      games_completed: 0,
+                      hands_completed: 0,
+                      total_decisions: 0,
+                      avg_decision_ms: 0,
+                      last_decision_ms: 0,
+                      avg_game_ms: 0,
+                      last_game_ms: 0,
+                      avg_hand_ms: 0,
+                      elapsed_sec: 0,
+                      game_history: [],
+                    };
+                    const hist = tel.game_history || [];
+                    const lastGame = hist.length > 0 ? hist[hist.length - 1] : null;
+                    const avgWinPts = hist.length > 0
+                      ? (hist.reduce((acc, g) => acc + g.winner_pts, 0) / hist.length).toFixed(1)
+                      : "15.0";
+                    const avgLosePts = hist.length > 0
+                      ? (hist.reduce((acc, g) => acc + g.loser_pts, 0) / hist.length).toFixed(1)
+                      : "0.0";
+
+                    const chartW = 760;
+                    const chartH = 195;
+                    const padL = 38;
+                    const padR = 20;
+                    const padT = 18;
+                    const padB = 28;
+                    const plotW = chartW - padL - padR;
+                    const plotH = chartH - padT - padB;
+                    const maxY = 18;
+
+                    const getX = (idx, count) => {
+                      if (count <= 1) return padL + plotW / 2;
+                      return padL + (idx / (count - 1)) * plotW;
+                    };
+                    const getY = (pts) => {
+                      const clamped = Math.max(0, Math.min(maxY, pts));
+                      return padT + plotH - (clamped / maxY) * plotH;
+                    };
+
+                    const winPointsPoly = hist
+                      .map((g, i) => `${getX(i, hist.length).toFixed(1)},${getY(g.winner_pts).toFixed(1)}`)
+                      .join(" ");
+                    const losePointsPoly = hist
+                      .map((g, i) => `${getX(i, hist.length).toFixed(1)},${getY(g.loser_pts).toFixed(1)}`)
+                      .join(" ");
+
+                    return (
+                      <div style={{ marginBlockEnd: "1rem" }}>
+                        {/* 4 REAL-TIME TELEMETRY KPI CARDS */}
+                        <div style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                          gap: "0.75rem",
+                          marginBlockEnd: "0.9rem",
+                          fontVariantNumeric: "tabular-nums"
+                        }}>
+                          <div style={{
+                            background: "#070b14",
+                            border: "1px solid var(--border-subtle)",
+                            borderRadius: "0.55rem",
+                            padding: "0.75rem 0.9rem"
+                          }}>
+                            <div style={{ fontSize: "0.73rem", color: "var(--text-muted)" }}>⚡ DECISION LATENCY (SYSTEM 1)</div>
+                            <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#38bdf8", marginBlock: "0.15rem" }}>
+                              {tel.avg_decision_ms} <span style={{ fontSize: "0.82rem", fontWeight: 600 }}>ms / decision</span>
+                            </div>
+                            <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                              Last: {tel.last_decision_ms} ms • Total: {tel.total_decisions.toLocaleString()} decisions
+                            </div>
+                          </div>
+
+                          <div style={{
+                            background: "#070b14",
+                            border: "1px solid var(--border-subtle)",
+                            borderRadius: "0.55rem",
+                            padding: "0.75rem 0.9rem"
+                          }}>
+                            <div style={{ fontSize: "0.73rem", color: "var(--text-muted)" }}>⏱️ TIME TO COMPLETE 15-PT GAME</div>
+                            <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--accent-gold)", marginBlock: "0.15rem" }}>
+                              {tel.avg_game_ms} <span style={{ fontSize: "0.82rem", fontWeight: 600 }}>ms / game</span>
+                            </div>
+                            <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                              Last Game: {tel.last_game_ms} ms • Avg Hand: {tel.avg_hand_ms} ms
+                            </div>
+                          </div>
+
+                          <div style={{
+                            background: "#070b14",
+                            border: "1px solid var(--border-subtle)",
+                            borderRadius: "0.55rem",
+                            padding: "0.75rem 0.9rem"
+                          }}>
+                            <div style={{ fontSize: "0.73rem", color: "var(--text-muted)" }}>🃏 LIVE THROUGHPUT</div>
+                            <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#34d399", marginBlock: "0.15rem" }}>
+                              {tel.games_completed} <span style={{ fontSize: "0.82rem", fontWeight: 600 }}>games ({tel.hands_completed} hands)</span>
+                            </div>
+                            <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                              Elapsed: {tel.elapsed_sec}s • Avg Margin: {avgWinPts} vs {avgLosePts} pts
+                            </div>
+                          </div>
+
+                          <div style={{
+                            background: "#070b14",
+                            border: "1px solid var(--border-subtle)",
+                            borderRadius: "0.55rem",
+                            padding: "0.75rem 0.9rem"
+                          }}>
+                            <div style={{ fontSize: "0.73rem", color: "var(--text-muted)" }}>🏆 LATEST COMPLETED GAME</div>
+                            {lastGame ? (
+                              <>
+                                <div style={{ fontSize: "1.1rem", fontWeight: 800, marginBlock: "0.18rem" }}>
+                                  <span style={{ color: "#34d399" }}>{lastGame.winner_pts} pts</span>
+                                  {" vs "}
+                                  <span style={{ color: "#fb7185" }}>{lastGame.loser_pts} pts</span>
+                                  <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginInlineStart: "0.4rem" }}>
+                                    (Game #{lastGame.game_idx})
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: "0.72rem", color: "#94a3b8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {lastGame.winner_name} def. {lastGame.loser_name} ({lastGame.hands} hands)
+                                </div>
+                              </>
+                            ) : (
+                              <div style={{ fontSize: "0.82rem", color: "#64748b", marginBlockTop: "0.35rem" }}>
+                                Start a training or tournament job to stream live game scores.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* WINNER POINTS vs LOSER POINTS REAL-TIME GRAPH */}
+                        <div style={{
+                          background: "#070b14",
+                          border: "1px solid var(--border-subtle)",
+                          borderRadius: "0.55rem",
+                          padding: "0.85rem 1rem"
+                        }}>
+                          <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: "0.5rem",
+                            marginBlockEnd: "0.45rem"
+                          }}>
+                            <div style={{ fontSize: "0.84rem", fontWeight: 700, color: "#e2e8f0" }}>
+                              📈 Real-Time Game Outcomes: Winner Points vs. Loser Points (Last {hist.length} Games)
+                            </div>
+                            <div style={{ display: "flex", gap: "1rem", fontSize: "0.76rem" }}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", color: "#34d399", fontWeight: 700 }}>
+                                <span style={{ inlineSize: "10px", blockSize: "10px", borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
+                                Winner Points (Avg {avgWinPts})
+                              </span>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", color: "#fb7185", fontWeight: 700 }}>
+                                <span style={{ inlineSize: "10px", blockSize: "10px", borderRadius: "50%", background: "#fb7185", display: "inline-block" }} />
+                                Loser Points (Avg {avgLosePts})
+                              </span>
+                            </div>
+                          </div>
+
+                          {hist.length === 0 ? (
+                            <div style={{
+                              blockSize: "130px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "var(--text-muted)",
+                              fontSize: "0.82rem",
+                              border: "1px dashed #1e293b",
+                              borderRadius: "0.4rem"
+                            }}>
+                              Waiting for first 15-point game to complete... (Click 🚀 Start King-of-the-Hill or 🏆 Run Championship above)
+                            </div>
+                          ) : (
+                            <svg
+                              viewBox={`0 0 ${chartW} ${chartH}`}
+                              style={{ inlineSize: "100%", blockSize: "195px", display: "block", overflow: "visible" }}
+                            >
+                              {/* Horizontal Grid Lines (0, 5, 10, 15 pts) */}
+                              {[0, 5, 10, 15].map((tick) => {
+                                const yPos = getY(tick);
+                                return (
+                                  <g key={tick}>
+                                    <line
+                                      x1={padL}
+                                      y1={yPos}
+                                      x2={chartW - padR}
+                                      y2={yPos}
+                                      stroke={tick === 15 ? "rgba(52, 211, 153, 0.3)" : "#1e293b"}
+                                      strokeDasharray={tick === 15 ? "4 4" : "none"}
+                                      strokeWidth="1"
+                                    />
+                                    <text
+                                      x={padL - 8}
+                                      y={yPos + 4}
+                                      textAnchor="end"
+                                      fill="#64748b"
+                                      fontSize="10"
+                                    >
+                                      {tick}p
+                                    </text>
+                                  </g>
+                                );
+                              })}
+
+                              {/* Vertical Spread Bars connecting Loser Pts to Winner Pts per game */}
+                              {hist.map((g, i) => {
+                                const x = getX(i, hist.length);
+                                const yWin = getY(g.winner_pts);
+                                const yLose = getY(g.loser_pts);
+                                return (
+                                  <line
+                                    key={`spread_${g.game_idx}`}
+                                    x1={x}
+                                    y1={yWin}
+                                    x2={x}
+                                    y2={yLose}
+                                    stroke="rgba(148, 163, 184, 0.22)"
+                                    strokeWidth="2"
+                                  />
+                                );
+                              })}
+
+                              {/* Winner Points Polyline */}
+                              {hist.length > 1 && (
+                                <polyline
+                                  fill="none"
+                                  stroke="#34d399"
+                                  strokeWidth="2.4"
+                                  points={winPointsPoly}
+                                />
+                              )}
+
+                              {/* Loser Points Polyline */}
+                              {hist.length > 1 && (
+                                <polyline
+                                  fill="none"
+                                  stroke="#fb7185"
+                                  strokeWidth="2.4"
+                                  points={losePointsPoly}
+                                />
+                              )}
+
+                              {/* Data Points + Hover Titles */}
+                              {hist.map((g, i) => {
+                                const x = getX(i, hist.length);
+                                const yWin = getY(g.winner_pts);
+                                const yLose = getY(g.loser_pts);
+                                const tip = `Game #${g.game_idx}: ${g.winner_name} (${g.winner_pts} pts) def. ${g.loser_name} (${g.loser_pts} pts) | ${g.game_ms}ms (${g.avg_decision_ms}ms/dec)`;
+                                return (
+                                  <g key={`dots_${g.game_idx}`}>
+                                    <circle cx={x} cy={yWin} r="3.8" fill="#34d399">
+                                      <title>{tip}</title>
+                                    </circle>
+                                    <circle cx={x} cy={yLose} r="3.8" fill="#fb7185">
+                                      <title>{tip}</title>
+                                    </circle>
+                                    {(i === 0 || i === hist.length - 1 || i % 5 === 0) && (
+                                      <text
+                                        x={x}
+                                        y={chartH - 6}
+                                        textAnchor="middle"
+                                        fill="#64748b"
+                                        fontSize="9.5"
+                                      >
+                                        #{g.game_idx}
+                                      </text>
+                                    )}
+                                  </g>
+                                );
+                              })}
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="log-terminal">
+                    {trainStatus.logs.map((line, i) => (
+                      <div key={i}>{line}</div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>

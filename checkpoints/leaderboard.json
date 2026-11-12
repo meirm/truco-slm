@@ -1,0 +1,393 @@
+{
+  "players": {
+    "jev_base": {
+      "player_id": "jev_base",
+      "display_name": "JEV-Base (Gen 0)",
+      "model_type": "System1-SLM (4L SwiGLU Base)",
+      "checkpoint_path": "checkpoints/jev_base_slm.pt",
+      "elo": 1500.0,
+      "matches_played": 42,
+      "matches_won": 23,
+      "matches_lost": 19,
+      "hands_played": 201,
+      "hands_won": 107,
+      "hands_lost": 80,
+      "hands_tied": 14,
+      "total_points_for": 468,
+      "total_points_against": 468
+    },
+    "jev_gen_16": {
+      "player_id": "jev_gen_16",
+      "display_name": "JEV-League (Gen 16)",
+      "model_type": "System1-SLM (Dual-Play G16)",
+      "checkpoint_path": "checkpoints/jev_gen_16_slm.pt",
+      "elo": 1565.1342208271235,
+      "matches_played": 42,
+      "matches_won": 29,
+      "matches_lost": 13,
+      "hands_played": 287,
+      "hands_won": 124,
+      "hands_lost": 111,
+      "hands_tied": 52,
+      "total_points_for": 573,
+      "total_points_against": 414
+    },
+    "jev_champion": {
+      "player_id": "jev_champion",
+      "display_name": "JEV-Active (Latest)",
+      "model_type": "System1-SLM (4L SwiGLU Latest)",
+      "checkpoint_path": "checkpoints/jev_truco_slm.pt",
+      "elo": 1492.6609592126836,
+      "matches_played": 42,
+      "matches_won": 22,
+      "matches_lost": 20,
+      "hands_played": 200,
+      "hands_won": 109,
+      "hands_lost": 74,
+      "hands_tied": 17,
+      "total_points_for": 485,
+      "total_points_against": 455
+    },
+    "jev_bluffer": {
+      "player_id": "jev_bluffer",
+      "display_name": "El Mentiroso (Bluffer)",
+      "model_type": "SLM + Strategic Bluff Persona",
+      "checkpoint_path": "checkpoints/jev_gen_16_slm.pt",
+      "elo": 1444.9445517201957,
+      "matches_played": 42,
+      "matches_won": 17,
+      "matches_lost": 25,
+      "hands_played": 231,
+      "hands_won": 89,
+      "hands_lost": 125,
+      "hands_tied": 17,
+      "total_points_for": 406,
+      "total_points_against": 511
+    },
+    "jev_phisher": {
+      "player_id": "jev_phisher",
+      "display_name": "El Zorro (Phisher Trap)",
+      "model_type": "SLM + Slow-Play Achique Trap",
+      "checkpoint_path": "checkpoints/jev_gen_16_slm.pt",
+      "elo": 1501.592774199902,
+      "matches_played": 42,
+      "matches_won": 23,
+      "matches_lost": 19,
+      "hands_played": 277,
+      "hands_won": 118,
+      "hands_lost": 128,
+      "hands_tied": 31,
+      "total_points_for": 517,
+      "total_points_against": 453
+    },
+    "jev_sheriff": {
+      "player_id": "jev_sheriff",
+      "display_name": "El Comisario (Anti-Bluff)",
+      "model_type": "SLM + Bayesian Bluff-Catcher",
+      "checkpoint_path": "checkpoints/jev_gen_16_slm.pt",
+      "elo": 1448.196937821212,
+      "matches_played": 42,
+      "matches_won": 15,
+      "matches_lost": 27,
+      "hands_played": 239,
+      "hands_won": 94,
+      "hands_lost": 116,
+      "hands_tied": 29,
+      "total_points_for": 422,
+      "total_points_against": 527
+    },
+    "jev_kamikaze": {
+      "player_id": "jev_kamikaze",
+      "display_name": "El Temerario (High-Risk)",
+      "model_type": "SLM + Max-Pressure Escalator",
+      "checkpoint_path": "checkpoints/jev_gen_16_slm.pt",
+      "elo": 1408.125568904377,
+      "matches_played": 42,
+      "matches_won": 13,
+      "matches_lost": 29,
+      "hands_played": 145,
+      "hands_won": 71,
+      "hands_lost": 72,
+      "hands_tied": 2,
+      "total_points_for": 365,
+      "total_points_against": 527
+    },
+    "heuristic_gaucho": {
+      "player_id": "heuristic_gaucho",
+      "display_name": "El Gaucho (Heuristic)",
+      "model_type": "Rule-Based + Bluff Engine",
+      "checkpoint_path": "truco/trainer.py",
+      "elo": 1544.5101631856571,
+      "matches_played": 42,
+      "matches_won": 26,
+      "matches_lost": 16,
+      "hands_played": 348,
+      "hands_won": 150,
+      "hands_lost": 156,
+      "hands_tied": 42,
+      "total_points_for": 565,
+      "total_points_against": 446
+    }
+  },
+  "head_to_head": {
+    "jev_base": {
+      "jev_gen_16": {
+        "w": 2,
+        "l": 4
+      },
+      "jev_champion": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_bluffer": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_phisher": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_sheriff": {
+        "w": 5,
+        "l": 1
+      },
+      "jev_kamikaze": {
+        "w": 3,
+        "l": 3
+      },
+      "heuristic_gaucho": {
+        "w": 2,
+        "l": 4
+      }
+    },
+    "jev_gen_16": {
+      "jev_base": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_champion": {
+        "w": 5,
+        "l": 1
+      },
+      "jev_bluffer": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_phisher": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_sheriff": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_kamikaze": {
+        "w": 5,
+        "l": 1
+      },
+      "heuristic_gaucho": {
+        "w": 6,
+        "l": 0
+      }
+    },
+    "jev_champion": {
+      "jev_base": {
+        "w": 2,
+        "l": 4
+      },
+      "jev_gen_16": {
+        "w": 1,
+        "l": 5
+      },
+      "jev_bluffer": {
+        "w": 5,
+        "l": 1
+      },
+      "jev_phisher": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_sheriff": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_kamikaze": {
+        "w": 5,
+        "l": 1
+      },
+      "heuristic_gaucho": {
+        "w": 2,
+        "l": 4
+      }
+    },
+    "jev_bluffer": {
+      "jev_base": {
+        "w": 2,
+        "l": 4
+      },
+      "jev_gen_16": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_champion": {
+        "w": 1,
+        "l": 5
+      },
+      "jev_phisher": {
+        "w": 2,
+        "l": 4
+      },
+      "jev_sheriff": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_kamikaze": {
+        "w": 3,
+        "l": 3
+      },
+      "heuristic_gaucho": {
+        "w": 2,
+        "l": 4
+      }
+    },
+    "jev_phisher": {
+      "jev_base": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_gen_16": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_champion": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_bluffer": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_sheriff": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_kamikaze": {
+        "w": 5,
+        "l": 1
+      },
+      "heuristic_gaucho": {
+        "w": 2,
+        "l": 4
+      }
+    },
+    "jev_sheriff": {
+      "jev_base": {
+        "w": 1,
+        "l": 5
+      },
+      "jev_gen_16": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_champion": {
+        "w": 2,
+        "l": 4
+      },
+      "jev_bluffer": {
+        "w": 2,
+        "l": 4
+      },
+      "jev_phisher": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_kamikaze": {
+        "w": 4,
+        "l": 2
+      },
+      "heuristic_gaucho": {
+        "w": 0,
+        "l": 6
+      }
+    },
+    "jev_kamikaze": {
+      "jev_base": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_gen_16": {
+        "w": 1,
+        "l": 5
+      },
+      "jev_champion": {
+        "w": 1,
+        "l": 5
+      },
+      "jev_bluffer": {
+        "w": 3,
+        "l": 3
+      },
+      "jev_phisher": {
+        "w": 1,
+        "l": 5
+      },
+      "jev_sheriff": {
+        "w": 2,
+        "l": 4
+      },
+      "heuristic_gaucho": {
+        "w": 2,
+        "l": 4
+      }
+    },
+    "heuristic_gaucho": {
+      "jev_base": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_gen_16": {
+        "w": 0,
+        "l": 6
+      },
+      "jev_champion": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_bluffer": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_phisher": {
+        "w": 4,
+        "l": 2
+      },
+      "jev_sheriff": {
+        "w": 6,
+        "l": 0
+      },
+      "jev_kamikaze": {
+        "w": 4,
+        "l": 2
+      }
+    }
+  },
+  "disabled_players": [
+    "jev_gen_1",
+    "jev_gen_10",
+    "jev_gen_11",
+    "jev_gen_12",
+    "jev_gen_13",
+    "jev_gen_14",
+    "jev_gen_15",
+    "jev_gen_2",
+    "jev_gen_3",
+    "jev_gen_4",
+    "jev_gen_5",
+    "jev_gen_6",
+    "jev_gen_7",
+    "jev_gen_8",
+    "jev_gen_9",
+    "jev_untrained",
+    "random_bot"
+  ]
+}
