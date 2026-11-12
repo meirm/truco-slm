@@ -5,7 +5,7 @@
 
 **JEV-Truco** is a full 2-player **Argentine Truco** engine (40-card Spanish deck, *Envido / Real Envido / Falta Envido*, *"El Envido está primero"*, *"Son buenas"*, *Truco / Retruco / Vale Cuatro*, and *Parda* tie-breaker rules) powered by a **System 1 Small Language Model (`System1TrucoSLM`)** that selects actions and estimates expected value in a **single forward pass (`~1.0 ms` per decision, zero Chain-of-Thought tokens)**.
 
-👉 **[Open the Live Interactive App (`index.html`)](./index.html)** *(works directly on **GitHub Pages `github.io`** in static demo mode, or connected to `server.py` locally for live PyTorch RLHF training!)*
+👉 **[Open the Live Interactive App (`index.html`)](https://meirm.github.io/truco-slm/)** *(works directly on **GitHub Pages `github.io`** in static demo mode, or connected to `server.py` locally for live PyTorch RLHF training!)*
 
 ---
 
